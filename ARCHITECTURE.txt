@@ -1,0 +1,280 @@
+
+╔════════════════════════════════════════════════════════════════════════════════╗
+║     FYI SOCIAL MEDIA MANAGEMENT PLATFORM - ARCHITECTURE OVERVIEW              ║
+║                           Phase 1 & Phase 2                                   ║
+╚════════════════════════════════════════════════════════════════════════════════╝
+
+
+┌─────────────────────────────────────────────────────────────────────────────┐
+│                          MAIN APPLICATION (main.py)                         │
+│                     customtkinter GUI with Tabview                          │
+└─────────────────────────────────────────────────────────────────────────────┘
+                                    │
+                                    ↓
+        ┌───────────────────────────────────────────────────────────────┐
+        │                      TAB STRUCTURE                            │
+        ├───────────────────────────────────────────────────────────────┤
+        │  PHASE 1                                 PHASE 2              │
+        │  ────────                                ────────             │
+        │  [📅 Calendar]     ← ContentCalendarFrame                    │
+        │  [📊 Analytics]    ← AnalyticsDashboardFrame                │
+        │  [📤 Bulk Upload]  ← BulkUploadFrame                        │
+        │                                                              │
+        │  [📨 Inbox]        ← SocialInboxFrame                       │
+        │  [📚 Library]      ← ContentLibraryFrame                    │
+        │  [👥 Team]        ← TeamCollaborationFrame                  │
+        │  [💬 Comments]     ← FirstCommentsFrame                     │
+        │  [#️⃣ Hashtags]     ← HashtagToolsFrame                      │
+        └───────────────────────────────────────────────────────────────┘
+                                    │
+                                    ↓
+        ┌───────────────────────────────────────────────────────────────┐
+        │                   BUSINESS LOGIC LAYER                        │
+        ├───────────────────────────────────────────────────────────────┤
+        │                                                               │
+        │  ┌──────────────────┐      ┌──────────────────┐              │
+        │  │ Account Manager  │      │ Email Manager    │              │
+        │  └──────────────────┘      └──────────────────┘              │
+        │                                                               │
+        │  ┌──────────────────┐      ┌──────────────────┐              │
+        │  │ Facebook Upload  │      │ Instagram Upload │              │
+        │  └──────────────────┘      └──────────────────┘              │
+        │                                                               │
+        │  ┌──────────────────┐      ┌──────────────────┐              │
+        │  │  YouTube Upload  │      │ Logger Config    │              │
+        │  └──────────────────┘      └──────────────────┘              │
+        │                                                               │
+        └───────────────────────────────────────────────────────────────┘
+                                    │
+                                    ↓
+        ┌───────────────────────────────────────────────────────────────┐
+        │                 DATA ACCESS LAYER (ORM)                       │
+        │              database_manager.py                              │
+        │                                                               │
+        │  ┌─ DatabaseManager (Singleton)                              │
+        │  │  ├─ Posts CRUD                                            │
+        │  │  ├─ Accounts Management                                   │
+        │  │  ├─ Analytics Recording                                   │
+        │  │  ├─ Inbox Management                                      │
+        │  │  ├─ Activity Logging                                      │
+        │  │  └─ [30+ Methods]                                         │
+        │  │                                                            │
+        │  ├─ Dataclasses:                                             │
+        │  │  ├─ Post(id, team_id, platform, ...)                     │
+        │  │  ├─ Account(id, team_id, platform, ...)                  │
+        │  │  └─ AnalyticsMetric(id, post_id, ...)                    │
+        │  └─ Database Connection (SQLite)                             │
+        └───────────────────────────────────────────────────────────────┘
+                                    │
+                                    ↓
+        ┌───────────────────────────────────────────────────────────────┐
+        │                  DATABASE LAYER (SQLite)                      │
+        │              database_schema.sql (14 Tables)                  │
+        ├───────────────────────────────────────────────────────────────┤
+        │                                                               │
+        │  CORE TABLES              SUPPORT TABLES                     │
+        │  ───────────              ──────────────                     │
+        │  ├─ users                 ├─ social_inbox                    │
+        │  ├─ teams                 ├─ first_comments                  │
+        │  ├─ accounts              ├─ hashtag_suggestions             │
+        │  ├─ posts                 ├─ shortened_links                 │
+        │  ├─ analytics             ├─ link_clicks                     │
+        │  │                        ├─ monitoring_keywords             │
+        │  │                        ├─ monitoring_alerts               │
+        │  │                        └─ activity_log (audit trail)      │
+        │  │                                                            │
+        │  └─ [Indexes on frequently queried columns]                  │
+        └───────────────────────────────────────────────────────────────┘
+                                    │
+                                    ↓
+        ┌───────────────────────────────────────────────────────────────┐
+        │               EXTERNAL API INTEGRATIONS                       │
+        ├───────────────────────────────────────────────────────────────┤
+        │                                                               │
+        │  ┌──────────────┐  ┌──────────────┐  ┌──────────────┐       │
+        │  │ Facebook API │  │ Instagram API│  │ YouTube API  │       │
+        │  │ v20.0        │  │ (via FB)     │  │ v3           │       │
+        │  └──────────────┘  └──────────────┘  └──────────────┘       │
+        │                                                               │
+        └───────────────────────────────────────────────────────────────┘
+
+
+DATA FLOW EXAMPLE: Creating a Post
+═══════════════════════════════════════════════════════════════════════════════
+
+    User fills form in UI Module
+            ↓
+    Module calls database_manager methods
+            ↓
+    DatabaseManager.create_post(Post(...))
+            ↓
+    ORM converts to SQL INSERT
+            ↓
+    SQLite stores in posts table
+            ↓
+    database_manager.log_activity(...)
+            ↓
+    Activity logged to activity_log table
+            ↓
+    UI refreshes with new post visible
+
+
+MULTI-TENANT FLOW: Supporting Multiple Teams
+═══════════════════════════════════════════════════════════════════════════════
+
+    ContentCalendarFrame(parent, team_id=1)
+            ↓
+    self.db.get_posts(team_id=1)
+            ↓
+    SELECT * FROM posts WHERE team_id = 1
+            ↓
+    Calendar displays only team 1's posts
+            ↓
+    User switches workspace (team_id=2)
+            ↓
+    ContentCalendarFrame(parent, team_id=2)
+            ↓
+    SELECT * FROM posts WHERE team_id = 2
+            ↓
+    Calendar displays only team 2's posts
+
+
+MODULE DEPENDENCIES
+═══════════════════════════════════════════════════════════════════════════════
+
+database_manager.py
+    ├─ Required by: All UI modules
+    ├─ Depends on: SQLite
+    └─ Version: Singleton pattern (one instance)
+
+database_schema.sql
+    ├─ Required by: database_manager.py
+    ├─ Defines: 14 tables, indexes, constraints
+    └─ Initialization: Auto-created on first run
+
+UI Modules (all independent)
+    ├─ ui_calendar.py
+    ├─ ui_analytics.py
+    ├─ ui_bulk_upload.py
+    ├─ ui_social_inbox.py
+    ├─ ui_content_library.py
+    ├─ ui_team_collaboration.py
+    ├─ ui_first_comments.py
+    └─ ui_hashtag_tools.py
+
+All require:
+    ├─ customtkinter (GUI framework)
+    ├─ database_manager.py (data access)
+    └─ logger_config.py (logging)
+
+
+CONFIGURATION & CONSTANTS
+═══════════════════════════════════════════════════════════════════════════════
+
+Platform Colors (Consistent across modules):
+    PLATFORM_COLORS = {
+        "facebook": "#1877F2",      ← Facebook Blue
+        "instagram": "#E4405F",     ← Instagram Pink
+        "twitter": "#1DA1F2",       ← Twitter Blue
+        "linkedin": "#0A66C2",      ← LinkedIn Blue
+        "tiktok": "#000000"         ← TikTok Black
+    }
+
+Role Permissions (Team Management):
+    ROLES = {
+        "admin": [create, approve, publish, manage_team, ...],
+        "editor": [create, view_analytics, ...],
+        "publisher": [approve, publish, view_analytics],
+        "viewer": [view_analytics]
+    }
+
+UI Defaults:
+    Dark theme with customtkinter
+    Consistent padding (10-15px)
+    Consistent fonts (Arial, 10-18pt)
+    Status badges (Approved, Pending, Rejected, Active)
+
+
+SCALING ARCHITECTURE
+═══════════════════════════════════════════════════════════════════════════════
+
+Current Setup: Single-process, single-database
+├─ SQLite file: data/fyi.db
+├─ Good for: Solo developers, small teams (1-5 users)
+└─ Performance: Excellent for <50,000 posts
+
+For Scale-up to Postgres:
+├─ Replace database_manager SQLite with Postgres connector
+├─ Keep ORM layer unchanged
+├─ Instant scaling to 100+ concurrent users
+└─ All UI modules work without changes
+
+For Multi-server Setup:
+├─ Add Redis cache layer
+├─ Implement message queue (RabbitMQ/Celery)
+├─ Horizontal scale API servers
+└─ Centralized database (Postgres)
+
+
+ERROR HANDLING STRATEGY
+═══════════════════════════════════════════════════════════════════════════════
+
+Each module implements:
+    ├─ Try/except blocks on database operations
+    ├─ User-friendly error messages via messagebox
+    ├─ Logging to logger_config.py
+    ├─ Graceful degradation on failures
+    └─ Activity logging of errors
+
+Example:
+    try:
+        self.db.create_post(...)
+        messagebox.showinfo("Success", "Post created")
+    except Exception as e:
+        messagebox.showerror("Error", f"Failed: {e}")
+        logger.error(f"Post creation failed: {e}")
+
+
+TESTING STRATEGY
+═══════════════════════════════════════════════════════════════════════════════
+
+Unit Testing:
+    ├─ Test each database_manager method
+    ├─ Test ORM conversions
+    └─ Mock API responses
+
+Integration Testing:
+    ├─ Test UI modules load correctly
+    ├─ Test database operations end-to-end
+    ├─ Test multi-team isolation
+    └─ Test activity logging
+
+Performance Testing:
+    ├─ Load test with 10,000+ posts
+    ├─ UI responsiveness under load
+    ├─ Database query optimization
+    └─ Memory usage monitoring
+
+
+DEPLOYMENT CHECKLIST
+═══════════════════════════════════════════════════════════════════════════════
+
+Before Production:
+    □ All modules integrated into main.py
+    □ Database schema executed
+    □ All imports working
+    □ No syntax errors
+    □ Error handling tested
+    □ Activity logging verified
+    □ Performance acceptable
+    □ Multi-team isolation confirmed
+    □ User feedback implemented
+    □ Documentation complete
+
+═══════════════════════════════════════════════════════════════════════════════
+
+For detailed integration steps, see INTEGRATION_GUIDE.txt
+For feature descriptions, see PHASE_2_COMPLETE.txt
+For project overview, see PROJECT_STATUS.txt
+
+═══════════════════════════════════════════════════════════════════════════════

@@ -1,0 +1,272 @@
+"""
+INTEGRATION GUIDE FOR PHASE 1 & 2 MODULES INTO MAIN.PY
+=======================================================
+
+This guide shows how to integrate the 8 new UI modules into main.py
+
+STEP 1: ADD IMPORTS TO main.py
+===============================
+
+Add these imports to the top of main.py:
+
+```python
+# Phase 1 & 2 UI Modules
+from ui_calendar import ContentCalendarFrame
+from ui_analytics import AnalyticsDashboardFrame
+from ui_bulk_upload import BulkUploadFrame
+from ui_social_inbox import SocialInboxFrame
+from ui_content_library import ContentLibraryFrame
+from ui_team_collaboration import TeamCollaborationFrame
+from ui_first_comments import FirstCommentsFrame
+from ui_hashtag_tools import HashtagToolsFrame
+```
+
+STEP 2: CREATE TABS IN THE TABVIEW
+===================================
+
+In main.py's __init__ or main UI setup, replace or extend the existing tabview:
+
+```python
+# Create tabview (replace existing if present)
+self.tabview = ctk.CTkTabview(main_frame)
+self.tabview.pack(fill="both", expand=True, padx=10, pady=10)
+
+# PHASE 1 TABS
+self.tabview.add("Calendar")
+calendar_tab = self.tabview.tab("Calendar")
+self.calendar_frame = ContentCalendarFrame(calendar_tab, team_id=1)
+self.calendar_frame.pack(fill="both", expand=True)
+
+self.tabview.add("Analytics")
+analytics_tab = self.tabview.tab("Analytics")
+self.analytics_frame = AnalyticsDashboardFrame(analytics_tab, team_id=1)
+self.analytics_frame.pack(fill="both", expand=True)
+
+self.tabview.add("Bulk Upload")
+bulk_tab = self.tabview.tab("Bulk Upload")
+self.bulk_upload_frame = BulkUploadFrame(bulk_tab, team_id=1)
+self.bulk_upload_frame.pack(fill="both", expand=True)
+
+# PHASE 2 TABS
+self.tabview.add("Inbox")
+inbox_tab = self.tabview.tab("Inbox")
+self.inbox_frame = SocialInboxFrame(inbox_tab, team_id=1)
+self.inbox_frame.pack(fill="both", expand=True)
+
+self.tabview.add("Content Library")
+library_tab = self.tabview.tab("Content Library")
+self.library_frame = ContentLibraryFrame(library_tab, team_id=1)
+self.library_frame.pack(fill="both", expand=True)
+
+self.tabview.add("Team")
+team_tab = self.tabview.tab("Team")
+self.team_frame = TeamCollaborationFrame(team_tab, team_id=1)
+self.team_frame.pack(fill="both", expand=True)
+
+self.tabview.add("First Comments")
+fc_tab = self.tabview.tab("First Comments")
+self.fc_frame = FirstCommentsFrame(fc_tab, team_id=1)
+self.fc_frame.pack(fill="both", expand=True)
+
+self.tabview.add("Hashtag Tools")
+ht_tab = self.tabview.tab("Hashtag Tools")
+self.hashtag_frame = HashtagToolsFrame(ht_tab, team_id=1)
+self.hashtag_frame.pack(fill="both", expand=True)
+```
+
+STEP 3: MAINTAIN EXISTING TABS (OPTIONAL)
+===========================================
+
+If you want to keep your existing Instant/Scheduler/Smart Scheduler tabs:
+
+```python
+# Existing tabs (keep these)
+self.tabview.add("Instant Upload")
+# ... existing code ...
+
+self.tabview.add("Scheduler")
+# ... existing code ...
+
+self.tabview.add("Smart Scheduler")
+# ... existing code ...
+
+# Then add the new tabs as shown in STEP 2
+```
+
+STEP 4: REFRESH DATA PERIODICALLY (OPTIONAL)
+=============================================
+
+Add auto-refresh to keep data current:
+
+```python
+def _refresh_all_modules(self):
+    """Refresh all module data"""
+    try:
+        if hasattr(self, 'calendar_frame'):
+            self.calendar_frame.refresh()
+        if hasattr(self, 'analytics_frame'):
+            self.analytics_frame.refresh()
+        if hasattr(self, 'inbox_frame'):
+            self.inbox_frame.refresh()
+        if hasattr(self, 'library_frame'):
+            self.library_frame.refresh()
+        if hasattr(self, 'team_frame'):
+            self.team_frame.refresh()
+        if hasattr(self, 'fc_frame'):
+            self.fc_frame.refresh()
+        if hasattr(self, 'hashtag_frame'):
+            self.hashtag_frame.refresh()
+    except Exception as e:
+        logger.error(f"Refresh error: {e}")
+
+# Call this periodically (e.g., every 30 seconds)
+def _schedule_refresh(self):
+    """Schedule periodic refresh"""
+    self._refresh_all_modules()
+    self.after(30000, self._schedule_refresh)  # 30 seconds
+
+# In __init__, call: self._schedule_refresh()
+```
+
+STEP 5: DATABASE INITIALIZATION
+================================
+
+Make sure database is initialized before creating modules:
+
+```python
+# At start of main.py __init__:
+from database_manager import get_db_manager
+
+# Initialize database
+self.db = get_db_manager()
+
+# Database is now ready for all modules to use
+```
+
+TEAM_ID PARAMETER
+=================
+
+Each module takes a team_id parameter:
+- Currently set to team_id=1 (single team)
+- For multi-tenant: pass dynamic team_id from user context
+- Each team has isolated data in the database
+
+EXAMPLE FULL INTEGRATION
+========================
+
+Here's a minimal working example for integration:
+
+```python
+import customtkinter as ctk
+from database_manager import get_db_manager
+from ui_calendar import ContentCalendarFrame
+from ui_analytics import AnalyticsDashboardFrame
+from ui_bulk_upload import BulkUploadFrame
+from ui_social_inbox import SocialInboxFrame
+from ui_content_library import ContentLibraryFrame
+from ui_team_collaboration import TeamCollaborationFrame
+from ui_first_comments import FirstCommentsFrame
+from ui_hashtag_tools import HashtagToolsFrame
+
+class MainApp(ctk.CTk):
+    def __init__(self):
+        super().__init__()
+        
+        # Initialize database
+        self.db = get_db_manager()
+        self.team_id = 1  # Default to team 1
+        
+        # Create main UI
+        self.title("FYI Social Media Manager")
+        self.geometry("1200x700")
+        
+        # Create tabview
+        self.tabview = ctk.CTkTabview(self)
+        self.tabview.pack(fill="both", expand=True, padx=10, pady=10)
+        
+        # Add Phase 1 tabs
+        cal_tab = self.tabview.add("Calendar")
+        ContentCalendarFrame(cal_tab, team_id=self.team_id).pack(fill="both", expand=True)
+        
+        ana_tab = self.tabview.add("Analytics")
+        AnalyticsDashboardFrame(ana_tab, team_id=self.team_id).pack(fill="both", expand=True)
+        
+        bulk_tab = self.tabview.add("Bulk Upload")
+        BulkUploadFrame(bulk_tab, team_id=self.team_id).pack(fill="both", expand=True)
+        
+        # Add Phase 2 tabs
+        inbox_tab = self.tabview.add("Inbox")
+        SocialInboxFrame(inbox_tab, team_id=self.team_id).pack(fill="both", expand=True)
+        
+        lib_tab = self.tabview.add("Content Library")
+        ContentLibraryFrame(lib_tab, team_id=self.team_id).pack(fill="both", expand=True)
+        
+        team_tab = self.tabview.add("Team")
+        TeamCollaborationFrame(team_tab, team_id=self.team_id).pack(fill="both", expand=True)
+        
+        fc_tab = self.tabview.add("First Comments")
+        FirstCommentsFrame(fc_tab, team_id=self.team_id).pack(fill="both", expand=True)
+        
+        ht_tab = self.tabview.add("Hashtag Tools")
+        HashtagToolsFrame(ht_tab, team_id=self.team_id).pack(fill="both", expand=True)
+
+if __name__ == "__main__":
+    app = MainApp()
+    app.mainloop()
+```
+
+TESTING CHECKLIST
+=================
+
+After integration, verify:
+
+□ All tabs appear in the tabview
+□ Calendar displays with month navigation
+□ Analytics shows metric cards
+□ Bulk upload form loads
+□ Inbox filters by platform
+□ Content library imports files
+□ Team management shows members
+□ First comments creates templates
+□ Hashtag tools generates recommendations
+□ Database operations log to activity_log table
+□ No import errors on startup
+□ No crashes when clicking buttons
+□ Data persists after restart
+
+TROUBLESHOOTING
+===============
+
+Import Error: 
+  - Ensure all ui_*.py files are in same directory as main.py
+  - Check Python path includes current directory
+
+Database Error:
+  - Run: python -c "from database_manager import get_db_manager; db = get_db_manager()"
+  - Check data/ folder exists and is writable
+  - Check database_schema.sql was executed
+
+Module Not Showing:
+  - Check tab name matches module name
+  - Verify frame.pack() is called
+  - Check for exceptions in logs
+
+NEXT INTEGRATION TASKS
+=======================
+
+1. Add Phase 3 tabs (Social Listening, Link Tracking) when ready
+2. Add Settings/Config tab for global settings
+3. Add navigation sidebar (optional)
+4. Add multi-team selector (optional)
+5. Add search bar for cross-module search (optional)
+
+PHASE 3 MODULES (READY TO IMPLEMENT)
+====================================
+
+When ready to add Phase 3:
+1. ui_monitoring.py - Social Listening & Keyword Monitoring
+2. ui_link_tracking.py - Link Shortening & UTM Tracking
+3. ui_api_dashboard.py - REST API & Webhook Management
+
+These will follow the same integration pattern.
+"""

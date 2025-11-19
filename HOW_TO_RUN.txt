@@ -1,0 +1,743 @@
+================================================================================
+FYI UPLOADER - HOW TO RUN THE PROGRAM
+Complete Setup & Execution Guide
+================================================================================
+
+OVERVIEW
+================================================================================
+
+The FYI Uploader has multiple components that can be run separately:
+
+1. Main GUI Application (main.py) - Required
+2. REST API Server (api_server.py) - Optional
+3. Ngrok Tunnel (ngrok) - Optional (for external webhooks)
+4. End-to-End Tests (test_e2e.py) - Optional (for verification)
+
+
+================================================================================
+QUICK START (Most Common Setup)
+================================================================================
+
+Use this if you just want to run the GUI application:
+
+Terminal 1 - Start Ngrok Tunnel (for webhooks):
+────────────────────────────────────────────────────────────────────────────
+cd /d D:\FYIUploader
+venv\Scripts\activate
+ngrok http 5000
+
+Expected Output:
+Session Status                online
+Forwarding                    http://[random].ngrok.io -> localhost:5000
+
+
+Terminal 2 - Start Main Application:
+────────────────────────────────────────────────────────────────────────────
+cd /d D:\FYIUploader
+venv\Scripts\activate
+python main.py
+
+Expected Output:
+2025-11-16 09:37:05 - __main__ - INFO - FYI Uploader started
+[customtkinter] CTkToplevel widget created
+[customtkinter] Running mainloop...
+
+GUI window should open → You're ready to use the app!
+
+
+================================================================================
+DETAILED SETUP OPTIONS
+================================================================================
+
+OPTION 1: GUI ONLY (No API Server, No Ngrok)
+================================================================================
+Use this for: Local testing, basic content scheduling
+
+Steps:
+1. Open PowerShell
+2. Navigate to project:
+   $ cd /d D:\FYIUploader
+
+3. Activate virtual environment:
+   $ venv\Scripts\activate
+
+4. Run main application:
+   $ python main.py
+
+Result: GUI app opens, all features available locally
+Limitations: No external API access, webhooks won't work
+
+
+OPTION 2: GUI + NGROK (Recommended for Production)
+================================================================================
+Use this for: Production use, external webhook support, API tunneling
+
+Why use Ngrok?
+- Creates public URL for webhooks
+- Allows external services to reach your local server
+- Required for calendar reminders, real-time notifications
+- Safe tunneling with random URL
+
+Terminal 1 - Start Ngrok:
+───────────────────────────────────────────────────────────────────────────
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ ngrok http 5000
+
+Expected Output:
+Session Status                online
+Account                       [your-account]
+Forwarding                    http://[random].ngrok.io -> localhost:5000
+Web Interface                 http://127.0.0.1:4040
+
+Keep this terminal open ↑
+
+
+Terminal 2 - Start Main App:
+───────────────────────────────────────────────────────────────────────────
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ python main.py
+
+Expected Output:
+FYI Uploader GUI window opens
+
+Use your app normally. Ngrok tunnels work in background.
+
+
+OPTION 3: FULL SETUP (GUI + API Server + Ngrok)
+================================================================================
+Use this for: Full production deployment, third-party integrations
+
+Why use API Server?
+- REST API for external integrations
+- Third-party webhooks support
+- Programmatic access to platform
+- Backend automation
+
+Terminal 1 - Start Ngrok Tunnel:
+───────────────────────────────────────────────────────────────────────────
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ ngrok http 5000
+
+Expected Output:
+Forwarding    http://[random].ngrok.io -> localhost:5000
+
+Keep open ↑
+
+
+Terminal 2 - Start API Server:
+───────────────────────────────────────────────────────────────────────────
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ python api_server.py
+
+Expected Output:
+API server running on http://localhost:8000
+📚 API Endpoints:
+   GET  /api/health
+   GET  /api/posts
+   POST /api/posts
+   POST /api/posts/schedule
+   PUT  /api/posts/{id}
+   DELETE /api/posts/{id}
+   GET  /api/analytics
+   GET  /api/accounts
+   POST /api/webhooks
+
+Keep open ↑
+
+
+Terminal 3 - Start Main Application:
+───────────────────────────────────────────────────────────────────────────
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ python main.py
+
+Expected Output:
+FYI Uploader GUI window opens
+
+Now you have:
+✓ GUI app (localhost:5000)
+✓ REST API server (localhost:8000)
+✓ Public tunnel (http://[random].ngrok.io)
+✓ All features available
+
+
+================================================================================
+STEP-BY-STEP SETUP GUIDE
+================================================================================
+
+PRE-REQUISITES
+================================================================================
+
+Make sure you have:
+
+1. Python 3.13 installed
+   $ python --version
+   Output: Python 3.13.x
+
+2. Virtual environment created (venv folder exists)
+   $ ls venv
+   Output: venv folder should be listed
+
+3. Dependencies installed
+   $ pip list | findstr customtkinter
+   Output: customtkinter should be listed
+
+4. Ngrok downloaded (optional but recommended)
+   Download from: https://ngrok.com/download
+   Extract to a folder or add to PATH
+
+
+INSTALLATION VERIFICATION
+================================================================================
+
+Step 1: Check Python
+────────────────────────────────────────────────────────────────────────────
+$ python --version
+Expected: Python 3.13.x
+
+If not found:
+→ Download Python 3.13 from python.org
+→ Install and add to PATH
+
+
+Step 2: Verify Virtual Environment
+────────────────────────────────────────────────────────────────────────────
+$ cd /d D:\FYIUploader
+$ ls -Name | findstr venv
+Expected: venv folder listed
+
+If not found:
+→ Create with: python -m venv venv
+→ Activate with: venv\Scripts\activate
+
+
+Step 3: Check Dependencies
+────────────────────────────────────────────────────────────────────────────
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ pip list
+
+Expected packages:
+- customtkinter (GUI framework)
+- requests (HTTP library)
+- numpy (data processing)
+
+Missing packages? Run:
+$ pip install -r requirements.txt
+
+
+Step 4: Verify Ngrok (Optional)
+────────────────────────────────────────────────────────────────────────────
+$ ngrok --version
+Expected: ngrok version X.X.X
+
+If not found:
+→ Download from https://ngrok.com/download
+→ Extract to folder or add to PATH
+
+
+FIRST TIME SETUP
+================================================================================
+
+When you run main.py for the first time:
+
+1. Database Creation
+   ✓ accounts.db created automatically
+   ✓ 14 tables initialized
+   ✓ Located in d:\FYIUploader\accounts.db
+
+2. Configuration Files
+   ✓ config.py read and loaded
+   ✓ OAuth settings configured
+   ✓ Logging initialized
+
+3. Log Files Created
+   ✓ logs/app.log - Main application log
+   ✓ logs/error.log - Error log
+   ✓ logs/ folder created automatically
+
+4. Initial UI Load
+   ✓ All 18 tabs loaded
+   ✓ GUI window appears
+   ✓ Ready to use
+
+If you see errors:
+→ Check logs/error.log for details
+→ Review OAUTH_SCOPES_FIX.md for OAuth issues
+→ Verify OAuth credentials in config.py
+
+
+================================================================================
+DETAILED WORKFLOW FOR EACH COMPONENT
+================================================================================
+
+MAIN APPLICATION (main.py)
+================================================================================
+
+What it does:
+- Launches customtkinter GUI
+- Loads all 18 feature tabs
+- Connects to local database
+- Manages social media accounts
+- Schedules and posts content
+
+How to run:
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ python main.py
+
+Features available:
+✓ All 18 tabs functional
+✓ Schedule posts
+✓ Manage team
+✓ View analytics
+✓ Upload bulk content
+✓ Use AI generator
+✓ Configure security
+✓ White-label branding
+
+Keyboard shortcuts:
+Ctrl+N          New post
+Ctrl+S          Save draft
+Esc             Close dialog
+
+Exit application:
+- Click X button on window, or
+- Ctrl+C in terminal
+
+
+REST API SERVER (api_server.py)
+================================================================================
+
+What it does:
+- Provides HTTP REST API
+- Runs on localhost:8000
+- Allows programmatic access
+- Supports webhooks
+
+When to use:
+✓ Third-party integrations
+✓ Mobile app backend
+✓ Automation scripts
+✓ External webhooks
+
+How to run:
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ python api_server.py
+
+API Endpoints available:
+GET  /api/health              Check server status
+GET  /api/posts               Get all posts
+POST /api/posts               Create new post
+POST /api/posts/schedule      Schedule post
+PUT  /api/posts/{id}          Update post
+DELETE /api/posts/{id}        Delete post
+GET  /api/analytics           Get analytics data
+GET  /api/accounts            Get connected accounts
+POST /api/webhooks            Register webhook
+
+Example API calls:
+$ curl http://localhost:8000/api/health
+$ curl http://localhost:8000/api/posts
+
+Exit API server:
+- Ctrl+C in terminal
+
+
+NGROK TUNNEL (ngrok http 5000)
+================================================================================
+
+What it does:
+- Creates public tunnel to localhost
+- Exposes local app to internet
+- Provides webhook support
+- Runs on port 5000
+
+When to use:
+✓ Production environment
+✓ External webhooks needed
+✓ Mobile/external access required
+✓ Calendar reminders via webhooks
+
+How to run:
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ ngrok http 5000
+
+Output shows:
+Forwarding    http://[random].ngrok.io -> localhost:5000
+Web Interface http://127.0.0.1:4040
+
+Public URL: http://[random].ngrok.io
+(This URL is temporary and changes each restart)
+
+Ngrok Dashboard:
+Open http://127.0.0.1:4040 in browser
+View all requests, inspect headers, replay requests
+
+For persistent URL (paid plan):
+$ ngrok http -subdomain=myapp 5000
+(Requires ngrok subscription)
+
+Exit Ngrok:
+- Ctrl+C in terminal
+
+
+END-TO-END TESTS (test_e2e.py)
+================================================================================
+
+What it does:
+- Runs 82 automated tests
+- Verifies all features work
+- Tests all 18 tabs
+- Validates 80+ features
+
+When to use:
+✓ After updates/changes
+✓ Before production deployment
+✓ Verify everything is working
+✓ Quality assurance
+
+How to run:
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ python test_e2e.py
+
+Options:
+$ python test_e2e.py                    # Run all tests (fast)
+$ python test_e2e.py --verbose          # Show detailed output
+$ python test_e2e.py --module calendar  # Test specific module
+$ python test_e2e.py --help             # Show all options
+
+Expected output:
+[PASS] Passed:  82
+[FAIL] Failed:  0
+[SKIP] Skipped: 0
+Total: 82
+[PASS] ALL TESTS PASSED - Platform is ready for production
+
+Test results saved to: test_e2e.log
+
+If tests fail:
+→ Check test_e2e.log for details
+→ Run --verbose option for more info
+→ Review TESTING_GUIDE.md for troubleshooting
+
+
+================================================================================
+RECOMMENDED CONFIGURATIONS
+================================================================================
+
+DEVELOPMENT (Local Testing)
+────────────────────────────────────────────────────────────────────────────
+Use: Option 1 or Option 2
+Components: main.py + (optional) ngrok
+Purpose: Feature development, testing locally
+Command:
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ python main.py
+
+Benefits:
+✓ Quick startup
+✓ Full local access
+✓ Easy debugging
+✓ No external dependencies
+
+
+PRODUCTION (Live Server)
+────────────────────────────────────────────────────────────────────────────
+Use: Option 3
+Components: main.py + api_server.py + ngrok
+Purpose: Live deployment, full features
+Setup:
+
+Terminal 1 - Tunnel:
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ ngrok http 5000
+
+Terminal 2 - API:
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ python api_server.py
+
+Terminal 3 - App:
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ python main.py
+
+Benefits:
+✓ All features enabled
+✓ API access available
+✓ Webhooks working
+✓ External integrations supported
+✓ Ready for production
+
+Before going live:
+1. Run tests: python test_e2e.py
+2. Check logs: logs/app.log
+3. Configure OAuth properly
+4. Set up backups
+5. Review VERIFICATION_CHECKLIST.md
+
+
+TESTING / QA
+────────────────────────────────────────────────────────────────────────────
+Use: Test suite
+Command:
+$ cd /d D:\FYIUploader
+$ venv\Scripts\activate
+$ python test_e2e.py --verbose
+
+Checks:
+✓ All 82 tests passing
+✓ All 18 tabs working
+✓ 80+ features operational
+✓ Production ready
+
+After updates:
+- Always run tests first
+- Check test_e2e.log for failures
+- Fix issues before deploying
+
+
+================================================================================
+TROUBLESHOOTING
+================================================================================
+
+PROBLEM: "ModuleNotFoundError: No module named 'customtkinter'"
+Solution:
+$ venv\Scripts\activate
+$ pip install -r requirements.txt
+
+PROBLEM: "Python version is 3.12, not 3.13"
+Solution:
+$ python --version          # Check current
+$ python3.13 --version      # Check if 3.13 available
+$ python3.13 -m venv venv   # Create new venv with 3.13
+
+PROBLEM: "Ngrok command not found"
+Solution:
+→ Download ngrok from https://ngrok.com/download
+→ Extract to folder
+→ Add to PATH or run full path: C:\path\to\ngrok http 5000
+
+PROBLEM: "Port 5000 already in use"
+Solution:
+→ Another application using port 5000
+→ Find process: netstat -ano | findstr :5000
+→ Kill process: taskkill /PID [PID] /F
+→ Or use different port: ngrok http 8080
+
+PROBLEM: "Cannot connect to Instagram/Facebook"
+Solution:
+→ Check OAuth scopes in config.py
+→ Review OAUTH_SCOPES_FIX.md
+→ Verify API credentials
+→ Check logs/error.log
+
+PROBLEM: "Tests failing with encoding errors"
+Solution:
+→ Already fixed in this update!
+→ Run: python test_e2e.py
+→ Should show all 82 passing
+
+PROBLEM: "GUI window won't open"
+Solution:
+→ Check logs/error.log
+→ Verify database exists: accounts.db
+→ Try rebuilding database
+→ Check customtkinter installation
+
+
+================================================================================
+MAINTENANCE & MONITORING
+================================================================================
+
+DAILY CHECKS
+────────────────────────────────────────────────────────────────────────────
+$ tail -f logs/app.log              # Monitor app log
+$ tail -f logs/error.log            # Check errors
+$ curl http://localhost:8000/api/health  # API health check
+
+WEEKLY CHECKS
+────────────────────────────────────────────────────────────────────────────
+$ python test_e2e.py                # Run full test suite
+Verify all 82 tests passing
+
+MONTHLY MAINTENANCE
+────────────────────────────────────────────────────────────────────────────
+1. Database backup:
+   $ cp accounts.db accounts_backup_$(date +%Y%m%d).db
+
+2. Log rotation:
+   $ mv logs/app.log logs/app_$(date +%Y%m%d).log
+
+3. Update dependencies:
+   $ pip install -r requirements.txt --upgrade
+
+4. Security audit:
+   Review SECURITY tab in GUI
+   Check 2FA is enabled
+   Rotate API keys
+
+
+BACKUP PROCEDURES
+────────────────────────────────────────────────────────────────────────────
+Backup these files regularly:
+- accounts.db (main database)
+- config.py (configuration)
+- logs/ (activity logs)
+
+Commands:
+$ mkdir -p backups
+$ cp accounts.db backups/accounts_$(date +%Y%m%d_%H%M%S).db
+$ cp config.py backups/config_$(date +%Y%m%d_%H%M%S).py
+
+
+================================================================================
+PERFORMANCE TIPS
+================================================================================
+
+Optimize GUI Performance:
+- Close unused tabs
+- Clear old logs: rm logs/*.log
+- Rebuild database indexes periodically
+
+Optimize API Performance:
+- Monitor concurrent requests
+- Enable API caching if needed
+- Set reasonable timeouts
+
+Optimize Database:
+- Vacuum database: VACUUM;
+- Rebuild indexes: REINDEX;
+- Archive old records
+
+
+================================================================================
+ADDITIONAL RESOURCES
+================================================================================
+
+Documentation Files:
+→ QUICK_REFERENCE.md           Quick start guide
+→ USER_GUIDE.txt               Complete user manual
+→ UPGRADE_SUMMARY.txt          What's new in this version
+→ DOCUMENTATION_INDEX.md       Full documentation index
+→ OAUTH_SCOPES_FIX.md          Instagram OAuth troubleshooting
+→ TESTING_GUIDE.md             Testing procedures
+
+Log Files:
+→ logs/app.log                  Main application log
+→ logs/error.log                Error log
+→ test_e2e.log                  Test execution log
+
+Configuration:
+→ config.py                     Application configuration
+→ requirements.txt              Python dependencies
+→ database_schema.sql           Database schema
+
+
+================================================================================
+QUICK REFERENCE
+================================================================================
+
+MOST COMMON COMMANDS
+────────────────────────────────────────────────────────────────────────────
+
+# Navigate to project
+cd /d D:\FYIUploader
+
+# Activate environment
+venv\Scripts\activate
+
+# Run main app
+python main.py
+
+# Run tests
+python test_e2e.py
+
+# Run API server
+python api_server.py
+
+# Start ngrok tunnel
+ngrok http 5000
+
+# View help
+python test_e2e.py --help
+
+# View logs
+tail -f logs/app.log
+
+# Check API
+curl http://localhost:8000/api/health
+
+
+================================================================================
+GETTING HELP
+================================================================================
+
+If something doesn't work:
+
+1. Check the relevant documentation:
+   - GUI issues → USER_GUIDE.txt
+   - Instagram problems → OAUTH_SCOPES_FIX.md
+   - Tests failing → TESTING_GUIDE.md
+   - Setup problems → This file (HOW_TO_RUN.txt)
+
+2. Check logs:
+   $ type logs/error.log
+
+3. Run diagnostics:
+   $ python test_e2e.py --verbose
+
+4. Verify setup:
+   $ python --version
+   $ pip list | findstr customtkinter
+   $ ls accounts.db
+
+5. Review VERIFICATION_CHECKLIST.md for production readiness
+
+
+================================================================================
+VERSION INFORMATION
+================================================================================
+
+Current Version: 4.0 (November 16, 2025)
+Status: Production Ready
+Build: All Systems Operational
+
+Latest Changes:
+✓ Instagram OAuth fix implemented
+✓ 82 E2E tests added and passing
+✓ Comprehensive documentation
+✓ Windows encoding issues fixed
+
+Python Version: 3.13
+Framework: customtkinter
+Database: SQLite (14 tables)
+API Version: 1.0
+
+
+================================================================================
+END OF HOW_TO_RUN GUIDE
+================================================================================
+
+For more information, refer to the documentation index or contact support.
+
+Quick links:
+- Setup: This file (HOW_TO_RUN.txt)
+- Usage: USER_GUIDE.txt
+- Reference: QUICK_REFERENCE.md
+- Troubleshooting: OAUTH_SCOPES_FIX.md or TESTING_GUIDE.md
+- All docs: DOCUMENTATION_INDEX.md
+
+Start with Option 2 (GUI + Ngrok) for best experience.
+
+================================================================================

@@ -1,0 +1,24 @@
+# Python build artifacts
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+*.pdb
+
+# Virtual environments
+venv/
+.env/
+.venv/
+
+# Editor and OS noise
+.DS_Store
+Thumbs.db
+.vscode/
+*.log
+
+# App-specific secrets / caches
+accounts/
+data/*.txt
+data/*.json
+logs/
+__pycache__/
