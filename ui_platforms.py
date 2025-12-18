@@ -3,14 +3,20 @@ Additional Platforms UI for FYI Social Media Management
 Twitter, LinkedIn, TikTok, Pinterest, WhatsApp, Telegram management
 """
 import customtkinter as ctk
+import threading
 from datetime import datetime
+from pathlib import Path
+from tkinter import filedialog, messagebox
+
 from platform_integrations import (
     get_twitter_uploader, get_linkedin_uploader, get_tiktok_uploader,
     get_pinterest_uploader, get_whatsapp_uploader, get_telegram_uploader
 )
 from database_manager import get_db_manager
+from account_manager import get_account_manager
 
 db_manager = get_db_manager()
+account_manager = get_account_manager()
 
 
 class AdditionalPlatformsFrame(ctk.CTkFrame):
@@ -19,6 +25,8 @@ class AdditionalPlatformsFrame(ctk.CTkFrame):
     def __init__(self, parent, team_id=1):
         super().__init__(parent)
         self.team_id = team_id
+        self.tiktok_video_path = None
+        self.tiktok_account_map = {}
         self._setup_ui()
     
     def _setup_ui(self):
@@ -200,7 +208,36 @@ class AdditionalPlatformsFrame(ctk.CTkFrame):
         
         ctk.CTkLabel(upload_frame, text="🎬 Video Upload:", font=("Arial", 11, "bold")).pack(anchor="w", pady=5)
         
-        ctk.CTkButton(upload_frame, text="📁 Choose Video (Max 10 min)", fg_color="blue", height=40).pack(fill="x", pady=5)
+        ctk.CTkButton(
+            upload_frame,
+            text="📁 Choose Video (Max 10 min)",
+            fg_color="blue",
+            height=40,
+            command=self._choose_tiktok_video
+        ).pack(fill="x", pady=5)
+        self.tiktok_video_label = ctk.CTkLabel(upload_frame, text="No file selected", text_color="gray")
+        self.tiktok_video_label.pack(anchor="w", pady=(2, 0))
+
+        account_frame = ctk.CTkFrame(self.tiktok_tab)
+        account_frame.pack(fill="x", padx=15, pady=10)
+        ctk.CTkLabel(account_frame, text="Linked TikTok Account:", font=("Arial", 11)).pack(anchor="w", pady=3)
+
+        accounts = account_manager.get_accounts_by_platform("tiktok")
+        combo_values = []
+        self.tiktok_account_map = {}
+        for acc in accounts:
+            label = f"{acc.name or acc.username} · {acc.account_id[-6:]}"
+            self.tiktok_account_map[label] = acc.account_id
+            combo_values.append(label)
+        if not combo_values:
+            combo_values = ["No TikTok accounts linked"]
+        self.tiktok_account_combo = ctk.CTkComboBox(
+            account_frame,
+            values=combo_values,
+            state="readonly" if accounts else "disabled"
+        )
+        self.tiktok_account_combo.set(combo_values[0])
+        self.tiktok_account_combo.pack(fill="x", pady=5)
         
         # Video details
         details_frame = ctk.CTkFrame(self.tiktok_tab)
@@ -213,6 +250,10 @@ class AdditionalPlatformsFrame(ctk.CTkFrame):
         ctk.CTkLabel(details_frame, text="Hashtags:", font=("Arial", 11)).pack(anchor="w", pady=3)
         self.tiktok_hashtags = ctk.CTkEntry(details_frame, placeholder_text="#trending #viral #fyp")
         self.tiktok_hashtags.pack(fill="x", pady=5)
+
+        ctk.CTkLabel(details_frame, text="Schedule (optional, YYYY-MM-DD HH:MM)", font=("Arial", 11)).pack(anchor="w", pady=3)
+        self.tiktok_schedule_entry = ctk.CTkEntry(details_frame, placeholder_text="2024-07-04 15:30")
+        self.tiktok_schedule_entry.pack(fill="x", pady=5)
         
         # Cover image
         cover_frame = ctk.CTkFrame(self.tiktok_tab)
@@ -224,8 +265,11 @@ class AdditionalPlatformsFrame(ctk.CTkFrame):
         action_frame = ctk.CTkFrame(self.tiktok_tab)
         action_frame.pack(fill="x", padx=15, pady=15)
         
-        ctk.CTkButton(action_frame, text="📤 Upload Now", command=self._post_tiktok, fg_color="green", height=40).pack(fill="x", pady=5)
+        self.tiktok_upload_btn = ctk.CTkButton(action_frame, text="📤 Upload Now", command=self._post_tiktok, fg_color="green", height=40)
+        self.tiktok_upload_btn.pack(fill="x", pady=5)
         ctk.CTkButton(action_frame, text="⏰ Schedule", fg_color="orange", height=40).pack(fill="x", pady=5)
+        self.tiktok_status_label = ctk.CTkLabel(action_frame, text="", text_color="gray")
+        self.tiktok_status_label.pack(anchor="w", pady=(5, 0))
         
         # Performance
         perf_frame = ctk.CTkFrame(self.tiktok_tab)
@@ -388,19 +432,90 @@ class AdditionalPlatformsFrame(ctk.CTkFrame):
     
     def _post_tiktok(self):
         """Upload to TikTok"""
-        caption = self.tiktok_caption.get("1.0", "end-1c")
-        hashtags = self.tiktok_hashtags.get().split()
-        if caption:
-            uploader = get_tiktok_uploader()
-            result = uploader.upload_video("video.mp4", caption, hashtags)
+        caption = self.tiktok_caption.get("1.0", "end-1c").strip()
+        if not caption:
+            messagebox.showerror("Missing caption", "Write a caption for your TikTok video.")
+            return
+
+        if not self.tiktok_video_path:
+            messagebox.showerror("Missing video", "Choose a video to upload.")
+            return
+
+        selected_account = self.tiktok_account_combo.get()
+        account_id = self.tiktok_account_map.get(selected_account)
+        if not account_id:
+            messagebox.showerror("No TikTok account", "Link a TikTok account in Accounts > TikTok.")
+            return
+
+        schedule_str = self.tiktok_schedule_entry.get().strip()
+        schedule_ts = None
+        if schedule_str:
+            try:
+                dt = datetime.strptime(schedule_str, "%Y-%m-%d %H:%M")
+                schedule_ts = int(dt.timestamp())
+            except ValueError:
+                messagebox.showerror("Invalid schedule", "Use format YYYY-MM-DD HH:MM")
+                return
+
+        hashtags = [tag for tag in self.tiktok_hashtags.get().split() if tag]
+
+        self.tiktok_upload_btn.configure(state="disabled", text="Uploading…")
+        self.tiktok_status_label.configure(text="Uploading to TikTok…", text_color="#00BCD4")
+
+        threading.Thread(
+            target=self._run_tiktok_upload,
+            args=(account_id, caption, hashtags, schedule_ts),
+            daemon=True
+        ).start()
+
+    def _choose_tiktok_video(self):
+        """Open file picker for TikTok video."""
+        file_path = filedialog.askopenfilename(
+            title="Select TikTok video",
+            filetypes=[("Video files", "*.mp4 *.mov *.mkv *.avi"), ("All files", "*.*")]
+        )
+        if not file_path:
+            return
+        self.tiktok_video_path = file_path
+        self.tiktok_video_label.configure(text=Path(file_path).name)
+
+    def _run_tiktok_upload(self, account_id, caption, hashtags, schedule_ts):
+        """Execute TikTok upload off the UI thread."""
+        uploader = get_tiktok_uploader()
+        try:
+            result = uploader.upload_video(
+                account_id=account_id,
+                video_path=self.tiktok_video_path,
+                caption=caption,
+                hashtags=hashtags,
+                schedule_time=schedule_ts
+            )
+        except Exception as exc:  # pragma: no cover - UI runtime
+            self.after(0, lambda: self._handle_tiktok_result(False, str(exc), hashtags))
+            return
+
+        self.after(0, lambda: self._handle_tiktok_result(True, result, hashtags))
+
+    def _handle_tiktok_result(self, success, payload, hashtags):
+        """Update UI after upload attempt."""
+        self.tiktok_upload_btn.configure(state="normal", text="📤 Upload Now")
+        if success:
+            self.tiktok_status_label.configure(text="TikTok upload complete", text_color="#4CAF50")
             db_manager.log_activity(
                 team_id=self.team_id,
                 user_id=1,
                 action="post_tiktok",
                 target_type="posts",
                 target_id=None,
-                metadata={"caption_length": len(caption), "hashtag_count": len(hashtags)}
+                metadata={
+                    "caption_length": len(self.tiktok_caption.get("1.0", "end-1c")),
+                    "hashtag_count": len(hashtags)
+                }
             )
+            messagebox.showinfo("TikTok", "Upload completed successfully." if isinstance(payload, dict) else payload)
+        else:
+            self.tiktok_status_label.configure(text="TikTok upload failed", text_color="#FF7043")
+            messagebox.showerror("TikTok", payload)
     
     def _create_pin(self):
         """Create Pinterest pin"""

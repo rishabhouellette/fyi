@@ -8,6 +8,7 @@ from datetime import datetime
 from typing import Dict, Optional, List
 from database_manager import get_db_manager
 from logger_config import get_logger
+from tiktok_uploader import get_tiktok_uploader as core_tiktok_uploader
 
 logger = get_logger(__name__)
 db_manager = get_db_manager()
@@ -163,66 +164,6 @@ class LinkedInUploader:
             logger.error(f"Schedule LinkedIn post error: {e}")
             return {"status": "error", "message": str(e)}
 
-
-class TikTokUploader:
-    """TikTok API integration"""
-    
-    def __init__(self, access_token: str = None):
-        self.access_token = access_token or "TIKTOK_ACCESS_TOKEN"
-        self.api_url = "https://open-api.tiktok.com/v1"
-        self.headers = {
-            "Authorization": f"Bearer {self.access_token}",
-            "Content-Type": "application/json"
-        }
-    
-    def upload_video(self, video_path: str, caption: str, hashtags: List[str] = None) -> Dict:
-        """Upload video to TikTok"""
-        try:
-            full_caption = caption
-            if hashtags:
-                full_caption += " " + " ".join(hashtags)
-            
-            response = {
-                "data": {
-                    "video_id": "tiktok_video_123",
-                    "caption": full_caption,
-                    "created_at": datetime.now().isoformat()
-                },
-                "status": "success"
-            }
-            
-            db_manager.log_activity(
-                team_id=1,
-                user_id=1,
-                action="upload_tiktok",
-                target_type="posts",
-                target_id=None,
-                metadata={"caption_length": len(full_caption), "hashtag_count": len(hashtags or [])}
-            )
-            
-            logger.info(f"TikTok video uploaded: {caption[:50]}...")
-            return response
-        except Exception as e:
-            logger.error(f"TikTok upload error: {e}")
-            return {"status": "error", "message": str(e)}
-    
-    def schedule_video(self, video_path: str, caption: str, scheduled_time: str) -> Dict:
-        """Schedule TikTok video"""
-        try:
-            response = {
-                "data": {
-                    "video_id": "scheduled_tiktok_123",
-                    "caption": caption,
-                    "scheduled_for": scheduled_time
-                },
-                "status": "scheduled"
-            }
-            
-            logger.info(f"TikTok video scheduled for {scheduled_time}")
-            return response
-        except Exception as e:
-            logger.error(f"Schedule TikTok video error: {e}")
-            return {"status": "error", "message": str(e)}
 
 
 class PinterestUploader:
@@ -393,7 +334,7 @@ def get_linkedin_uploader():
 def get_tiktok_uploader():
     """Get TikTok uploader"""
     if "tiktok" not in _uploaders:
-        _uploaders["tiktok"] = TikTokUploader()
+        _uploaders["tiktok"] = core_tiktok_uploader()
     return _uploaders["tiktok"]
 
 def get_pinterest_uploader():

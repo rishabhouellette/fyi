@@ -1,0 +1,38 @@
+@echo off
+title FYI Social Infinity - Desktop App
+color 0D
+echo.
+echo  ███████╗██╗   ██╗██╗    ██████╗ ███████╗███████╗██╗  ██╗████████╗ ██████╗ ██████╗ 
+echo  ██╔════╝╚██╗ ██╔╝██║    ██╔══██╗██╔════╝██╔════╝██║ ██╔╝╚══██╔══╝██╔═══██╗██╔══██╗
+echo  █████╗   ╚████╔╝ ██║    ██║  ██║█████╗  ███████╗█████╔╝    ██║   ██║   ██║██████╔╝
+echo  ██╔══╝    ╚██╔╝  ██║    ██║  ██║██╔══╝  ╚════██║██╔═██╗    ██║   ██║   ██║██╔═══╝ 
+echo  ██║        ██║   ██║    ██████╔╝███████╗███████║██║  ██╗   ██║   ╚██████╔╝██║     
+echo  ╚═╝        ╚═╝   ╚═╝    ╚═════╝ ╚══════╝╚══════╝╚═╝  ╚═╝   ╚═╝    ╚═════╝ ╚═╝     
+echo                                   INFINITY - Desktop Mode
+echo.
+echo ========================================================================
+echo  Desktop App - Coming Soon!
+echo ========================================================================
+echo.
+echo  The native desktop app is under development.
+echo  
+echo  Planned features:
+echo    [*] Native Windows/Mac/Linux application
+echo    [*] System tray integration
+echo    [*] Offline mode
+echo    [*] Desktop notifications
+echo    [*] Drag-and-drop from desktop
+echo.
+echo  For now, we'll launch the Web Portal in app mode...
+echo.
+echo ========================================================================
+pause
+
+echo.
+echo Launching Desktop App (Native Window)...
+echo.
+echo  This will open as a native desktop application window
+echo  Not in your web browser!
+echo.
+D:\FYIUploader\venv\Scripts\python.exe main_desktop.py
+pause

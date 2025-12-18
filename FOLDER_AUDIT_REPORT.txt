@@ -90,7 +90,7 @@ Database:
 Main Application:
 ✓ main.py - Main GUI entry point (necessary)
 ✓ start.bat - Startup script (necessary)
-✓ ngrok.exe - Ngrok tunnel executable (necessary for production)
+✓ ngrok.exe - Ngrok tunnel executable (optional; only for exposing webhooks)
 
 Support Scripts:
 ✓ server.py - Server entry point (necessary)

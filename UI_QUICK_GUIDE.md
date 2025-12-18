@@ -19,6 +19,11 @@ Your FYI Uploader now has **3 major improvements**:
 - **After**: Enterprise-grade design with modern colors
 - **How**: Custom color scheme, better spacing, emoji indicators, proper styling
 
+### 4. 🌐 Triple Front Ends (Phase 4)
+- **NiceGUI Control Center**: `python -m web.app` mirrors Calendar, Bulk Upload, Automation Lab, and Research Lab at `http://127.0.0.1:8000/ui/`.
+- **Next.js Pro Portal**: `cd web/next-portal && npm run dev` launches the Tailwind dashboard used by external partners (calendar + bulk upload backed by `/api/v1/posts`).
+- **Tauri Shell**: `cd tauri && npm run dev` wraps NiceGUI in a native window and auto-starts `python -m backend.main`; see `tauri/DISTRIBUTION.md` for signing + rollout steps.
+
 ---
 
 ## 📊 Before vs After
@@ -61,6 +66,20 @@ Double-click start.bat → Option 1 (GUI only)
 - See emoji indicators (🟢 linked, 🔴 not linked)
 - Observe better spacing and alignment
 - Toggle Dark/Light mode in top-left
+
+## 🌐 Browser Control Center (Phase 4)
+
+Need to monitor FYI without remoting into the Windows host? Launch the FastAPI +
+NiceGUI mirror:
+
+```
+python -m web.app
+```
+
+- Opens `http://localhost:8080` with Automation Lab, Research Lab, and Viral Coach tiles.
+- Uses the same services (scheduler, hook library, brand kits) as the desktop UI.
+- Great for stakeholders who only need read/diagnostic access.
+- See `WEB_FRONTEND.md` for deploy + auth notes.
 
 ---
 

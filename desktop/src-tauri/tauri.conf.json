@@ -1,0 +1,72 @@
+{
+  "$schema": "https://schema.tauri.app/config/2",
+  "productName": "FYI Social Infinity",
+  "version": "2.0.0",
+  "identifier": "com.fyisocial.infinity",
+  "build": {
+    "beforeDevCommand": "npm run dev",
+    "beforeBuildCommand": "npm run build",
+    "devUrl": "http://localhost:5173",
+    "frontendDist": "../dist"
+  },
+  "bundle": {
+    "active": true,
+    "targets": ["msi", "nsis", "appimage", "dmg"],
+    "icon": [
+      "icons/32x32.png",
+      "icons/128x128.png",
+      "icons/128x128@2x.png",
+      "icons/icon.icns",
+      "icons/icon.ico"
+    ],
+    "windows": {
+      "certificateThumbprint": null,
+      "digestAlgorithm": "sha256",
+      "timestampUrl": ""
+    },
+    "longDescription": "The ultimate AI-powered social media management platform. Create 100+ viral clips from 1 video, schedule across all platforms, and grow your audience with AI insights.",
+    "shortDescription": "AI-Powered Social Media Management",
+    "copyright": "Copyright (c) 2025 FYI Social Infinity",
+    "category": "Productivity",
+    "fileAssociations": [],
+    "externalBin": [],
+    "resources": [],
+    "createUpdaterArtifacts": true
+  },
+  "app": {
+    "windows": [
+      {
+        "title": "FYI Social ∞",
+        "width": 1600,
+        "height": 1000,
+        "minWidth": 1200,
+        "minHeight": 800,
+        "resizable": true,
+        "fullscreen": false,
+        "decorations": true,
+        "transparent": false,
+        "center": true,
+        "theme": "Dark",
+        "skipTaskbar": false
+      }
+    ],
+    "security": {
+      "csp": "default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self' data:; connect-src 'self' http://localhost:* https://api.pexels.com https://api.elevenlabs.io"
+    }
+  },
+  "plugins": {
+    "updater": {
+      "active": true,
+      "pubkey": "UPDATE_PUBKEY_HERE",
+      "endpoints": [
+        "https://releases.fyisocial.io/{{target}}/{{current_version}}"
+      ],
+      "windows": {
+        "installMode": "passive"
+      }
+    },
+    "shell": {
+      "open": ".*"
+    }
+  }
+}

@@ -8,6 +8,9 @@ from urllib.parse import urlparse, parse_qs
 import threading
 from datetime import datetime
 from typing import Dict, List
+from fastapi import HTTPException
+
+from backend.security import validate_service_token
 from database_manager import get_db_manager
 from logger_config import get_logger
 
@@ -21,6 +24,9 @@ class APIHandler(BaseHTTPRequestHandler):
         """Handle GET requests"""
         parsed_path = urlparse(self.path)
         path = parsed_path.path
+
+        if path != "/api/health" and not self._authorize(parsed_path):
+            return
         
         if path == "/api/health":
             self._respond_json(200, {"status": "ok", "timestamp": datetime.now().isoformat()})
@@ -39,6 +45,12 @@ class APIHandler(BaseHTTPRequestHandler):
     
     def do_POST(self):
         """Handle POST requests"""
+        parsed_path = urlparse(self.path)
+        path = parsed_path.path
+
+        if not self._authorize(parsed_path):
+            return
+
         content_length = int(self.headers.get('Content-Length', 0))
         body = self.rfile.read(content_length)
         
@@ -47,9 +59,6 @@ class APIHandler(BaseHTTPRequestHandler):
         except:
             self._respond_json(400, {"error": "Invalid JSON"})
             return
-        
-        parsed_path = urlparse(self.path)
-        path = parsed_path.path
         
         if path == "/api/posts":
             self._create_post(data)
@@ -65,6 +74,12 @@ class APIHandler(BaseHTTPRequestHandler):
     
     def do_PUT(self):
         """Handle PUT requests"""
+        parsed_path = urlparse(self.path)
+        path = parsed_path.path
+
+        if not self._authorize(parsed_path):
+            return
+
         content_length = int(self.headers.get('Content-Length', 0))
         body = self.rfile.read(content_length)
         
@@ -73,9 +88,6 @@ class APIHandler(BaseHTTPRequestHandler):
         except:
             self._respond_json(400, {"error": "Invalid JSON"})
             return
-        
-        parsed_path = urlparse(self.path)
-        path = parsed_path.path
         
         if path.startswith("/api/posts/"):
             post_id = int(path.split("/")[-1])
@@ -88,6 +100,9 @@ class APIHandler(BaseHTTPRequestHandler):
         """Handle DELETE requests"""
         parsed_path = urlparse(self.path)
         path = parsed_path.path
+
+        if not self._authorize(parsed_path):
+            return
         
         if path.startswith("/api/posts/"):
             post_id = int(path.split("/")[-1])
@@ -277,6 +292,17 @@ class APIHandler(BaseHTTPRequestHandler):
     def log_message(self, format, *args):
         """Suppress default logging"""
         logger.info(format % args)
+
+    def _authorize(self, parsed_path):
+        query = parse_qs(parsed_path.query)
+        header_key = self.headers.get("X-FYI-Key")
+        query_key = query.get("key", [None])[0]
+        try:
+            validate_service_token(header_key, query_key)
+            return True
+        except HTTPException as exc:
+            self._respond_json(exc.status_code, {"error": exc.detail})
+            return False
 
 
 class APIServer:

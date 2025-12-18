@@ -10,7 +10,7 @@ The FYI Uploader has multiple components that can be run separately:
 
 1. Main GUI Application (main.py) - Required
 2. REST API Server (api_server.py) - Optional
-3. Ngrok Tunnel (ngrok) - Optional (for external webhooks)
+3. Local Tunnel (ngrok or reverse proxy) - Optional (only when you need to expose webhooks)
 4. End-to-End Tests (test_e2e.py) - Optional (for verification)
 
 
@@ -18,31 +18,66 @@ The FYI Uploader has multiple components that can be run separately:
 QUICK START (Most Common Setup)
 ================================================================================
 
-Use this if you just want to run the GUI application:
+Use this if you just want to run the GUI application. No tunnels, ngrok,
+or secondary servers are required.
 
-Terminal 1 - Start Ngrok Tunnel (for webhooks):
+Option A — Run directly
 ────────────────────────────────────────────────────────────────────────────
 cd /d D:\FYIUploader
 venv\Scripts\activate
-ngrok http 5000
+python backend/main.py   # start FastAPI spine (optional but recommended)
+python main.py           # desktop detects backend automatically
 
-Expected Output:
-Session Status                online
-Forwarding                    http://[random].ngrok.io -> localhost:5000
-
-
-Terminal 2 - Start Main Application:
+Option B — Use the startup menu
 ────────────────────────────────────────────────────────────────────────────
-cd /d D:\FYIUploader
-venv\Scripts\activate
-python main.py
+double-click start.bat → choose option 1 (Desktop)
 
 Expected Output:
-2025-11-16 09:37:05 - __main__ - INFO - FYI Uploader started
+2025-11-21 10:07:12 - __main__ - INFO - FYI Uploader started
 [customtkinter] CTkToplevel widget created
 [customtkinter] Running mainloop...
 
 GUI window should open → You're ready to use the app!
+
+
+================================================================================
+OAUTH HTTPS SETUP (Phase 0 Requirement)
+================================================================================
+Local Facebook/Instagram apps created after 2024 require an HTTPS redirect. The
+embedded OAuth server already supports TLS—just add a certificate and point the
+config at it.
+
+1. Install mkcert (Windows example):
+   - Install Chocolatey if needed, then run: `choco install mkcert`
+   - Trust the local CA once: `mkcert -install`
+
+2. Issue a certificate for localhost:
+   ```
+   cd /d D:\FYIUploader
+   mkcert 127.0.0.1
+   ```
+   This produces files such as `127.0.0.1.pem` and `127.0.0.1-key.pem`.
+
+3. Move them somewhere predictable (example):
+   ```
+   mkdir certs
+   move 127.0.0.1.pem certs\localhost.pem
+   move 127.0.0.1-key.pem certs\localhost-key.pem
+   ```
+
+4. Update `.env` so the config knows about HTTPS:
+   ```ini
+   OAUTH_REDIRECT_ORIGIN=https://127.0.0.1:5000
+   SSL_CERT_FILE=D:/FYIUploader/certs/localhost.pem
+   SSL_KEY_FILE=D:/FYIUploader/certs/localhost-key.pem
+   ```
+
+5. Restart the desktop app. When you click **Connect Facebook/Instagram**, the
+   browser now lands on `https://127.0.0.1:5000/callback` without Chrome/Edge
+   warnings because mkcert’s CA is trusted locally.
+
+Keep the certificate files private. Regenerate them anytime by repeating the
+commands above.
 
 
 ================================================================================
@@ -68,101 +103,64 @@ Result: GUI app opens, all features available locally
 Limitations: No external API access, webhooks won't work
 
 
-OPTION 2: GUI + NGROK (Recommended for Production)
+OPTION 2: GUI + Optional Public Tunnel
 ================================================================================
-Use this for: Production use, external webhook support, API tunneling
+Use this when you need to expose FYI to external services (webhooks,
+remote approvals, etc.). The app itself still runs locally; ngrok (or any
+reverse proxy) is only for inbound traffic.
 
-Why use Ngrok?
-- Creates public URL for webhooks
-- Allows external services to reach your local server
-- Required for calendar reminders, real-time notifications
-- Safe tunneling with random URL
+Steps:
+1. Launch the desktop app normally (see Quick Start or `start.bat` option 1).
+2. In another terminal, start ngrok **only if** you need an external URL:
 
-Terminal 1 - Start Ngrok:
-───────────────────────────────────────────────────────────────────────────
-$ cd /d D:\FYIUploader
-$ venv\Scripts\activate
-$ ngrok http 5000
+```
+cd /d D:\FYIUploader
+venv\Scripts\activate
+ngrok http 5000
+```
 
 Expected Output:
 Session Status                online
-Account                       [your-account]
 Forwarding                    http://[random].ngrok.io -> localhost:5000
-Web Interface                 http://127.0.0.1:4040
 
-Keep this terminal open ↑
-
-
-Terminal 2 - Start Main App:
-───────────────────────────────────────────────────────────────────────────
-$ cd /d D:\FYIUploader
-$ venv\Scripts\activate
-$ python main.py
-
-Expected Output:
-FYI Uploader GUI window opens
-
-Use your app normally. Ngrok tunnels work in background.
+Leave the ngrok window open while you need the tunnel. Close it when
+you're done exposing the app. All OAuth flows still use the embedded
+localhost callback.
 
 
-OPTION 3: FULL SETUP (GUI + API Server + Ngrok)
+OPTION 3: FULL STACK (GUI + API + Web UI + Optional Tunnel)
 ================================================================================
-Use this for: Full production deployment, third-party integrations
+Use this for full deployments, third-party integrations, or when you want
+the browser-based Control Center alongside the desktop UI.
 
-Why use API Server?
-- REST API for external integrations
-- Third-party webhooks support
-- Programmatic access to platform
-- Backend automation
+Fastest path:
+1. Run `start.bat` → choose option 2 (Desktop + Local API) or option 3
+   (Desktop + Web Control Center). The script spawns the necessary
+   terminals for you.
+2. If you need a public URL for webhooks, start ngrok in a separate
+   terminal (see Option 2) **after** the local services are running.
 
-Terminal 1 - Start Ngrok Tunnel:
+Manual commands (if you prefer):
+
+Terminal 1 – API server
 ───────────────────────────────────────────────────────────────────────────
-$ cd /d D:\FYIUploader
-$ venv\Scripts\activate
-$ ngrok http 5000
+cd /d D:\FYIUploader
+venv\Scripts\activate
+python api_server.py
 
-Expected Output:
-Forwarding    http://[random].ngrok.io -> localhost:5000
-
-Keep open ↑
-
-
-Terminal 2 - Start API Server:
+Terminal 2 – Desktop app
 ───────────────────────────────────────────────────────────────────────────
-$ cd /d D:\FYIUploader
-$ venv\Scripts\activate
-$ python api_server.py
+cd /d D:\FYIUploader
+venv\Scripts\activate
+python main.py
 
-Expected Output:
-API server running on http://localhost:8000
-📚 API Endpoints:
-   GET  /api/health
-   GET  /api/posts
-   POST /api/posts
-   POST /api/posts/schedule
-   PUT  /api/posts/{id}
-   DELETE /api/posts/{id}
-   GET  /api/analytics
-   GET  /api/accounts
-   POST /api/webhooks
-
-Keep open ↑
-
-
-Terminal 3 - Start Main Application:
+Terminal 3 – Web Control Center (optional)
 ───────────────────────────────────────────────────────────────────────────
-$ cd /d D:\FYIUploader
-$ venv\Scripts\activate
-$ python main.py
+cd /d D:\FYIUploader
+venv\Scripts\activate
+python -m web.app
 
-Expected Output:
-FYI Uploader GUI window opens
-
-Now you have:
-✓ GUI app (localhost:5000)
-✓ REST API server (localhost:8000)
-✓ Public tunnel (http://[random].ngrok.io)
-✓ All features available
+Add ngrok only if an external service must reach one of these processes.
 
 
 ================================================================================
@@ -453,30 +451,27 @@ Benefits:
 PRODUCTION (Live Server)
 ────────────────────────────────────────────────────────────────────────────
 Use: Option 3
-Components: main.py + api_server.py + ngrok
+Components: main.py + api_server.py (+ optional web.app and ngrok)
 Purpose: Live deployment, full features
 Setup:
 
-Terminal 1 - Tunnel:
-$ cd /d D:\FYIUploader
-$ venv\Scripts\activate
-$ ngrok http 5000
+Fast path → run `start.bat` and choose option 2 (Desktop + API) or option 3
+(Desktop + Web UI). Both windows stay pinned so you can monitor logs.
 
-Terminal 2 - API:
-$ cd /d D:\FYIUploader
-$ venv\Scripts\activate
-$ python api_server.py
+Need a public URL? Launch ngrok in a separate terminal **after** the local
+services are up:
 
-Terminal 3 - App:
-$ cd /d D:\FYIUploader
-$ venv\Scripts\activate
-$ python main.py
+```
+cd /d D:\FYIUploader
+venv\Scripts\activate
+ngrok http 5000
+```
 
 Benefits:
 ✓ All features enabled
 ✓ API access available
-✓ Webhooks working
-✓ External integrations supported
+✓ Optional browser UI
+✓ Webhooks supported when you add a tunnel
 ✓ Ready for production
 
 Before going live:

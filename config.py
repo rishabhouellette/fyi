@@ -14,7 +14,7 @@ class Config:
     # Facebook App Credentials
     fb_app_id: str
     fb_app_secret: str
-    ngrok_url: str
+    oauth_redirect_origin: str
     
     # Server settings
     server_host: str = "127.0.0.1"
@@ -33,6 +33,10 @@ class Config:
     
     # Security
     allowed_ips: list = field(default_factory=list)
+    ssl_cert_file: Optional[str] = None
+    ssl_key_file: Optional[str] = None
+    api_auth_token: str = "dev-local-key"
+    api_rate_limit_per_minute: int = 120
     
     def __post_init__(self):
         """Initialize derived paths"""
@@ -46,7 +50,8 @@ class Config:
     @property
     def redirect_uri(self) -> str:
         """Generate OAuth redirect URI"""
-        return f"{self.ngrok_url}/callback"
+        origin = (self.oauth_redirect_origin or "https://127.0.0.1:5000").rstrip("/")
+        return f"{origin}/callback"
     
     @classmethod
     def from_env(cls, env_path: Optional[Path] = None) -> 'Config':
@@ -65,7 +70,6 @@ class Config:
         required = {
             'FB_APP_ID': os.getenv('FB_APP_ID'),
             'FB_APP_SECRET': os.getenv('FB_APP_SECRET'),
-            'NGROK_URL': os.getenv('NGROK_URL'),
         }
         
         missing = [k for k, v in required.items() if not v]
@@ -79,16 +83,22 @@ class Config:
         if os.getenv('ALLOWED_IPS'):
             allowed_ips = [ip.strip() for ip in os.getenv('ALLOWED_IPS').split(',') if ip.strip()]
         
+        oauth_origin = os.getenv('OAUTH_REDIRECT_ORIGIN', f"https://{os.getenv('SERVER_HOST', '127.0.0.1')}:{os.getenv('SERVER_PORT', '5000')}")
+
         return cls(
             fb_app_id=required['FB_APP_ID'].strip(),
             fb_app_secret=required['FB_APP_SECRET'].strip(),
-            ngrok_url=required['NGROK_URL'].strip().rstrip('/'),
+            oauth_redirect_origin=oauth_origin.strip() if oauth_origin else "https://127.0.0.1:5000",
             server_host=os.getenv('SERVER_HOST', '127.0.0.1'),
             server_port=int(os.getenv('SERVER_PORT', '5000')),
             max_retries=int(os.getenv('MAX_RETRIES', '3')),
             chunk_size_mb=int(os.getenv('CHUNK_SIZE_MB', '4')),
             request_timeout=int(os.getenv('REQUEST_TIMEOUT', '30')),
             allowed_ips=allowed_ips,
+            ssl_cert_file=os.getenv('SSL_CERT_FILE'),
+            ssl_key_file=os.getenv('SSL_KEY_FILE'),
+            api_auth_token=os.getenv('API_AUTH_TOKEN', 'dev-local-key'),
+            api_rate_limit_per_minute=int(os.getenv('API_RATE_LIMIT_PER_MINUTE', '120')),
         )
     
     def ensure_directories(self):
@@ -105,16 +115,11 @@ class Config:
         """Validate configuration"""
         errors = []
         
-        # Check ngrok URL format
-        if not self.ngrok_url.startswith('https://'):
-            errors.append("NGROK_URL must start with https://")
-        
-        # Check if ngrok is running
-        try:
-            import requests
-            response = requests.get(self.ngrok_url, timeout=5)
-        except:
-            errors.append(f"Cannot reach ngrok URL: {self.ngrok_url}. Is ngrok running?")
+        origin = self.oauth_redirect_origin
+        if not origin.startswith('http://') and not origin.startswith('https://'):
+            errors.append("OAUTH_REDIRECT_ORIGIN must start with https://")
+        elif origin.startswith('http://'):
+            errors.append("OAUTH_REDIRECT_ORIGIN must use https:// to satisfy Facebook's redirect policy")
         
         if errors:
             print("\n⚠️  Configuration Warnings:")

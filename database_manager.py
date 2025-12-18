@@ -138,6 +138,47 @@ class DatabaseManager:
             return None
         finally:
             conn.close()
+
+    def get_post(self, post_id: int) -> Optional[Post]:
+        """Fetch a single post by ID."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute("SELECT * FROM posts WHERE id = ?", (post_id,))
+            row = cursor.fetchone()
+            return self._row_to_post(row) if row else None
+        except Exception as e:
+            logger.error(f"Failed to fetch post %s: %s", post_id, e)
+            return None
+        finally:
+            conn.close()
+
+    def schedule_post(self, post_id: int, scheduled_time: str, status: str = "scheduled") -> bool:
+        """Update a post's schedule time and status."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        try:
+            cursor.execute(
+                """
+                UPDATE posts
+                SET scheduled_time = ?, status = ?, updated_at = CURRENT_TIMESTAMP
+                WHERE id = ?
+                """,
+                (scheduled_time, status, post_id),
+            )
+            if cursor.rowcount == 0:
+                return False
+            conn.commit()
+            logger.info("Post %s scheduled for %s", post_id, scheduled_time)
+            return True
+        except Exception as e:
+            logger.error("Failed to schedule post %s: %s", post_id, e)
+            conn.rollback()
+            return False
+        finally:
+            conn.close()
     
     def get_posts(self, team_id: int, filters: Dict[str, Any] = None) -> List[Post]:
         """Get posts for a team with optional filters"""
@@ -305,6 +346,29 @@ class DatabaseManager:
             return metrics
         except Exception as e:
             logger.error(f"Failed to get analytics: {e}")
+            return []
+        finally:
+            conn.close()
+
+    def get_post_analytics(self, post_id: int, days: int = 30) -> List[AnalyticsMetric]:
+        """Get analytics metrics for a specific post."""
+        conn = self.get_connection()
+        cursor = conn.cursor()
+
+        cutoff = (datetime.now() - timedelta(days=days)).date().isoformat()
+
+        try:
+            cursor.execute(
+                """
+                SELECT * FROM analytics
+                WHERE post_id = ? AND metric_date >= ?
+                ORDER BY metric_date DESC
+                """,
+                (post_id, cutoff),
+            )
+            return [self._row_to_analytics(row) for row in cursor.fetchall()]
+        except Exception as e:
+            logger.error("Failed to get analytics for post %s: %s", post_id, e)
             return []
         finally:
             conn.close()

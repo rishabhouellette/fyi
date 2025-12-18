@@ -2,27 +2,40 @@
 
 ## 📚 Documentation Hub
 
-**Total Documentation**: 78.3 KB across 10 comprehensive guides
+**Total Documentation**: ~92 KB across 12 comprehensive guides (desktop + web + community)
 
 ---
 
 ## 🎯 Start Here
 
+### Persona Navigation (Phase 5 KB Refresh)
+| Persona | Primary Doc Path | What You’ll Find |
+|---------|------------------|------------------|
+| **Creators / Customers** | `docs/customers.md` → `QUICK_REFERENCE.md` → `USER_GUIDE.txt` | Feature tour, quick tasks, troubleshooting.
+| **Ops / Leadership** | `docs/ops.md` → `RELEASE_NOTES.md` → `PROJECT_STATUS.txt` | Milestone history, QA snapshots, roadmap. |
+| **Ops / Support** | `OFFICE_HOURS_PLAYBOOK.md` → `office-hours-log.md` → `PHASE_5_PLAN.md` | Office hours cadence, escalation steps, KB metrics. |
+| **Developers / Integrators** | `docs/developers.md` → `SETUP_INSTRUCTIONS.md` → `INTEGRATION_GUIDE.txt` | Environment setup, system map, REST reference. |
+| **Partners / Automation Builders** | `docs/partners.md` → `WEB_FRONTEND.md` → `tauri/DISTRIBUTION.md` | Browser control center, n8n/Make packs, desktop shell rollout plan. |
+
 ### For New Users
 1. **QUICK_REFERENCE.md** - Start with this! (8 KB)
-   - Quick project overview
-   - 18 tabs at a glance
-   - Key commands
-   - Common tasks
+    - Quick project overview
+    - 18 tabs at a glance
+    - Key commands
+    - Common tasks
+2. **USER_GUIDE.txt** - Step-by-step walkthrough for non-technical teams
+3. **UI_QUICK_GUIDE.md** - Screenshots + workflows for each major module
 
 ### For Developers  
 1. **SETUP_INSTRUCTIONS.md** - Installation guide (5.4 KB)
 2. **ARCHITECTURE.txt** - System design overview
 3. **INTEGRATION_GUIDE.txt** - API reference
+4. **WEB_FRONTEND.md** - FastAPI + NiceGUI endpoints + Tauri bridge
 
-### For Testing
+### For Testing / QA
 1. **TESTING_GUIDE.md** - E2E testing procedures (9.3 KB)
 2. **VERIFICATION_CHECKLIST.md** - Verification checklist
+3. **PROJECT_STATUS.txt** - Current phase + QA snapshots
 
 ---
 
@@ -59,6 +72,24 @@
 | MANIFEST.txt | Project manifest |
 | PROJECT_STATUS.txt | Status tracking |
 
+### Community & Web Additions
+| File | Purpose |
+|------|---------|
+| WEB_FRONTEND.md | FastAPI + NiceGUI browser control center setup + endpoints |
+| OFFICE_HOURS_PLAYBOOK.md | Weekly office hours cadence, tooling, and follow-up workflow |
+| COMMUNITY_KB_PLAN.md | Knowledge base structure, publishing workflow, and metrics |
+| office-hours-log.md | Running log template for weekly office hour recaps |
+| RELEASE_NOTES.md | Chronological feature drops + QA snapshots |
+| docs/README.md | Persona landing pages for Notion/static-site exports |
+
+### Automation Packs (Phase 4)
+| File | Purpose |
+|------|---------|
+| integrations/n8n/README.md | Import + credential guide for the n8n starter workflow (webhook → create → schedule → analytics). |
+| integrations/make/README.md | Step-by-step Make.com blueprint instructions, including env template + smoke test hook. |
+| integrations/.env.example | Shared environment template for `FYI_BASE_URL`, `FYI_API_KEY`, `FYI_TEAM_ID`, and `FYI_ACCOUNT_ID`. |
+| integrations/smoke_test.py | CLI harness that calls `POST /api/v1/posts`, `/schedule`, and `/analytics` to validate tokens before distributing the packs. |
+
 ---
 
 ## 🚀 Quick Navigation by Use Case
@@ -77,6 +108,12 @@
 - Installation steps
 - First time setup
 
+#### ...use FYI from a browser
+→ **WEB_FRONTEND.md** (new)
+- Launch FastAPI + NiceGUI web control center
+- Endpoint reference for automation/research APIs
+- Deployment notes (uvicorn, reverse proxies)
+
 #### ...understand the architecture
 → **ARCHITECTURE.txt**
 - System design
@@ -94,6 +131,18 @@
 - Test execution
 - Coverage map
 - Manual checklist
+
+#### ...host weekly office hours
+→ **OFFICE_HOURS_PLAYBOOK.md** (new)
+- Cadence + tooling
+- Run-of-show + recording workflow
+- Post-session checklist
+
+#### ...refresh the knowledge base
+→ **COMMUNITY_KB_PLAN.md** (new)
+- Content pillars + publishing workflow
+- Ownership + cadence tables
+- Metrics and automation backlog
 
 #### ...use the REST API
 → **INTEGRATION_GUIDE.txt**
@@ -141,6 +190,12 @@
 1. SESSION_SUMMARY.md - Session overview
 2. FINAL_COMPLETION_REPORT.md - Project summary
 3. PROJECT_STATUS.txt - Status tracking
+
+### Community Engagement
+1. OFFICE_HOURS_PLAYBOOK.md - Weekly support cadence
+2. WEB_FRONTEND.md - Browser UI + API references for remote teams
+3. COMMUNITY_KB_PLAN.md - Content pillars + publishing workflow
+4. office-hours-log.md - Rolling recap template for each call
 
 ### Technical Reference
 1. ARCHITECTURE.txt - System design
@@ -203,6 +258,7 @@
 - **FINAL_COMPLETION_REPORT.md** - Deployment instructions
 - **SETUP_INSTRUCTIONS.md** - Initial setup
 - **database_schema.sql** - DB initialization
+- **WEB_FRONTEND.md** - Browser UI hosting + uvicorn command reference
 
 ### API Integration
 - **INTEGRATION_GUIDE.txt** - API reference
@@ -221,13 +277,13 @@
 ### File Sizes
 | Size Range | Count | Files |
 |-----------|-------|-------|
-| 1-5 KB | 3 | OAUTH_SCOPES_FIX.md, TASK_12_COMPLETION.md, SETUP_INSTRUCTIONS.md |
-| 5-10 KB | 5 | README.md, INSTAGRAM_FIX_SUMMARY.md, QUICK_REFERENCE.md, SESSION_SUMMARY.md, VERIFICATION_CHECKLIST.md |
-| 10+ KB | 2 | FINAL_COMPLETION_REPORT.md, TESTING_GUIDE.md |
+| 1-5 KB | 4 | OAUTH_SCOPES_FIX.md, TASK_12_COMPLETION.md, SETUP_INSTRUCTIONS.md, office-hours-log.md |
+| 5-10 KB | 7 | README.md, INSTAGRAM_FIX_SUMMARY.md, QUICK_REFERENCE.md, SESSION_SUMMARY.md, VERIFICATION_CHECKLIST.md, WEB_FRONTEND.md, COMMUNITY_KB_PLAN.md |
+| 10+ KB | 4 | FINAL_COMPLETION_REPORT.md, TESTING_GUIDE.md, OFFICE_HOURS_PLAYBOOK.md, DOCUMENTATION_INDEX.md |
 
 ### Total Documentation
-- **Count**: 10 markdown files
-- **Size**: 78.3 KB
+- **Count**: 14 markdown files
+- **Size**: ~98 KB
 - **Coverage**: All project aspects
 - **Formats**: Multiple (guides, checklists, references)
 
@@ -384,6 +440,7 @@ ARCHITECTURE.txt (monitoring)
 | API not responding | Check server logs | INTEGRATION_GUIDE.txt |
 | Database error | Check schema | database_schema.sql |
 | General questions | Read overview | QUICK_REFERENCE.md |
+| Live help / office hours | Follow hosting + replay steps | OFFICE_HOURS_PLAYBOOK.md |
 
 ---
 
@@ -417,6 +474,24 @@ ARCHITECTURE.txt (monitoring)
 - Integration examples
 - Benchmarks
 
+### Most Useful for Community
+📖 **OFFICE_HOURS_PLAYBOOK.md** (11 KB)
+- Weekly cadence + tooling
+- Run-of-show + recording workflow
+- Post-session checklist + metrics template
+
+### Most Useful for Browser Access
+📖 **WEB_FRONTEND.md** (6 KB)
+- Launch and manage the FastAPI + NiceGUI UI
+- Endpoint reference for automation/research APIs
+- Deployment and auth considerations
+
+### Most Useful for KB Ops
+📖 **COMMUNITY_KB_PLAN.md** (7 KB)
+- Content pillars + doc structure
+- Publishing workflow + owners
+- Metrics + automation backlog
+
 ---
 
 ## 📚 Documentation Maintenance
@@ -432,8 +507,8 @@ All documentation is:
 
 ## 🎯 Index Summary
 
-**10 Comprehensive Documentation Files**
-- 78.3 KB of complete information
+**14 Comprehensive Documentation Files**
+- ~98 KB of complete information
 - Covering all aspects of the platform
 - Multiple learning paths available
 - Cross-referenced and searchable

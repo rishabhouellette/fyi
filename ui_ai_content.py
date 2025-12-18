@@ -4,11 +4,22 @@ Caption generation, hashtag suggestions, best time prediction, content analysis
 """
 import customtkinter as ctk
 from datetime import datetime
+from tkinter import filedialog, messagebox
+from pathlib import Path
+import threading
+import os
+import sys
+import subprocess
+
 from ai_engine import get_ai_engine
 from database_manager import get_db_manager
+from remix_service import get_remix_service
+from video_ai_service import get_video_ai_generator
 
 db_manager = get_db_manager()
 ai_engine = get_ai_engine()
+remix_service = get_remix_service()
+video_ai_generator = get_video_ai_generator()
 
 
 class AIContentGeneratorFrame(ctk.CTkFrame):
@@ -48,6 +59,16 @@ class AIContentGeneratorFrame(ctk.CTkFrame):
         # Tab 5: Recommendations
         self.recommendations_tab = self.tab_view.add("💡 Recommendations")
         self._setup_recommendations_tab()
+
+        # Tab 6: Remix Lab
+        self.remix_tab = self.tab_view.add("🌀 Remix Lab")
+        self._setup_remix_tab()
+        self.remix_file_path = None
+
+        # Tab 7: Video Lab
+        self.video_tab = self.tab_view.add("🎬 Video Lab")
+        self._setup_video_tab()
+        self.generated_video_path = None
     
     def _setup_caption_tab(self):
         """Setup caption generator tab"""
@@ -401,6 +422,216 @@ class AIContentGeneratorFrame(ctk.CTkFrame):
         rec_scroll.pack(fill="both", expand=True)
         
         self.recommendations_container = rec_scroll
+
+    def _setup_remix_tab(self):
+        """Setup Remix Lab tab UI"""
+        main_frame = ctk.CTkFrame(self.remix_tab)
+        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        header = ctk.CTkLabel(
+            main_frame,
+            text="Remix Lab – turn one asset into many",
+            font=("Arial", 16, "bold")
+        )
+        header.pack(anchor="w", pady=(0, 6))
+
+        subheader = ctk.CTkLabel(
+            main_frame,
+            text="Paste a URL, drop a file, or type your script to generate platform-ready drafts.",
+            text_color="gray"
+        )
+        subheader.pack(anchor="w")
+
+        input_frame = ctk.CTkFrame(main_frame)
+        input_frame.pack(fill="x", pady=10)
+
+        # Source selection
+        selection_frame = ctk.CTkFrame(input_frame)
+        selection_frame.pack(fill="x", pady=5)
+        ctk.CTkLabel(selection_frame, text="Source Type:").pack(side="left", padx=5)
+
+        self.remix_source_selector = ctk.CTkComboBox(
+            selection_frame,
+            values=["URL", "Text", "File"],
+            state="readonly",
+            width=120
+        )
+        self.remix_source_selector.set("URL")
+        self.remix_source_selector.pack(side="left", padx=5)
+
+        # URL input
+        self.remix_url_entry = ctk.CTkEntry(input_frame, placeholder_text="https://youtube.com/... or TikTok link")
+        self.remix_url_entry.pack(fill="x", padx=5, pady=5)
+
+        # Text input
+        self.remix_text_input = ctk.CTkTextbox(input_frame, height=120)
+        self.remix_text_input.pack(fill="x", padx=5, pady=5)
+
+        # File picker
+        file_frame = ctk.CTkFrame(input_frame)
+        file_frame.pack(fill="x", pady=5)
+        ctk.CTkButton(file_frame, text="📁 Choose File", command=self._choose_remix_file, width=140).pack(side="left", padx=5)
+        self.remix_file_label = ctk.CTkLabel(file_frame, text="No file selected", text_color="gray")
+        self.remix_file_label.pack(side="left", padx=10)
+
+        # Target platforms
+        targets_frame = ctk.CTkFrame(main_frame)
+        targets_frame.pack(fill="x", pady=10)
+        ctk.CTkLabel(targets_frame, text="Targets:", font=("Arial", 12, "bold")).pack(anchor="w", padx=5, pady=(0, 4))
+
+        platform_row = ctk.CTkFrame(targets_frame)
+        platform_row.pack(fill="x")
+        self.remix_target_vars = {}
+        target_names = [
+            ("Instagram", True),
+            ("TikTok", True),
+            ("YouTube", False),
+            ("LinkedIn", False),
+            ("Twitter", False),
+            ("Threads", False),
+            ("Facebook", False),
+            ("Pinterest", False),
+        ]
+        for name, default in target_names:
+            var = ctk.BooleanVar(value=default)
+            cb = ctk.CTkCheckBox(platform_row, text=name, variable=var)
+            cb.pack(side="left", padx=4, pady=2)
+            self.remix_target_vars[name.lower()] = var
+
+        options_frame = ctk.CTkFrame(main_frame)
+        options_frame.pack(fill="x", pady=10)
+        ctk.CTkLabel(options_frame, text="Call-to-Action:").pack(anchor="w", padx=5)
+        self.remix_cta_entry = ctk.CTkEntry(options_frame, placeholder_text="Drop your thoughts below ⬇️")
+        self.remix_cta_entry.pack(fill="x", padx=5, pady=5)
+
+        ctk.CTkButton(
+            main_frame,
+            text="🌀 Generate Remix",
+            fg_color="#7C4DFF",
+            command=self._generate_remix,
+            height=45
+        ).pack(fill="x", pady=5)
+
+        # Output
+        output_frame = ctk.CTkFrame(main_frame)
+        output_frame.pack(fill="both", expand=True, pady=10)
+        ctk.CTkLabel(output_frame, text="Outputs", font=("Arial", 12, "bold")).pack(anchor="w", padx=5, pady=5)
+
+        self.remix_output = ctk.CTkTextbox(output_frame, height=260)
+        self.remix_output.pack(fill="both", expand=True, padx=5, pady=5)
+
+        history_label = ctk.CTkLabel(main_frame, text="Recent Remix Jobs", font=("Arial", 12, "bold"))
+        history_label.pack(anchor="w", pady=(10, 0))
+
+        self.remix_history_container = ctk.CTkScrollableFrame(main_frame, height=150)
+        self.remix_history_container.pack(fill="both", expand=False, pady=5)
+        self._render_remix_history()
+
+    def _setup_video_tab(self):
+        """Build faceless video lab tab."""
+        main_frame = ctk.CTkFrame(self.video_tab)
+        main_frame.pack(fill="both", expand=True, padx=10, pady=10)
+
+        ctk.CTkLabel(
+            main_frame,
+            text="Faceless Video Lab",
+            font=("Arial", 16, "bold")
+        ).pack(anchor="w")
+
+        ctk.CTkLabel(
+            main_frame,
+            text="Feed a script, pick a style, and auto-generate a short-form video with voiceover.",
+            text_color="gray"
+        ).pack(anchor="w", pady=(0, 10))
+
+        input_frame = ctk.CTkFrame(main_frame)
+        input_frame.pack(fill="x", pady=5)
+
+        ctk.CTkLabel(input_frame, text="Video Style:").pack(side="left", padx=5)
+        styles = [style.title() for style in video_ai_generator.list_styles()]
+        self.video_style_selector = ctk.CTkComboBox(
+            input_frame,
+            values=styles,
+            state="readonly",
+            width=160
+        )
+        self.video_style_selector.set(styles[0] if styles else "Motivation")
+        self.video_style_selector.pack(side="left", padx=5)
+
+        self.video_duration_label = ctk.CTkLabel(input_frame, text="Est. Duration: --")
+        self.video_duration_label.pack(side="right", padx=5)
+
+        options_frame = ctk.CTkFrame(main_frame)
+        options_frame.pack(fill="x", pady=5)
+
+        ctk.CTkLabel(options_frame, text="Voice:").pack(side="left", padx=5)
+        self.video_voice_map = {}
+        voice_profiles = video_ai_generator.list_voices()
+        voice_labels = []
+        for profile in voice_profiles:
+            label = profile.get("label", profile.get("key", "Voice"))
+            self.video_voice_map[label] = profile.get("key")
+            voice_labels.append(label)
+        if not voice_labels:
+            voice_labels = ["Creator Female"]
+            self.video_voice_map = {"Creator Female": "creator_female"}
+        self.video_voice_selector = ctk.CTkComboBox(
+            options_frame,
+            values=voice_labels,
+            state="readonly",
+            width=200
+        )
+        self.video_voice_selector.set(voice_labels[0])
+        self.video_voice_selector.pack(side="left", padx=5)
+
+        try:
+            self.video_subtitles_var = ctk.BooleanVar(value=True)
+        except AttributeError:  # Fallback for older customtkinter
+            import tkinter as tk
+            self.video_subtitles_var = tk.BooleanVar(value=True)
+        self.video_subtitle_check = ctk.CTkCheckBox(
+            options_frame,
+            text="Burn subtitles",
+            variable=self.video_subtitles_var
+        )
+        self.video_subtitle_check.pack(side="left", padx=10)
+
+        self.video_script_input = ctk.CTkTextbox(main_frame, height=220)
+        self.video_script_input.pack(fill="both", expand=False, pady=10)
+        self.video_script_input.insert(
+            "1.0",
+            "Hook your viewer with 3-6 short sentences. Each sentence becomes a beat in the video.\n"
+            "Example: 'AI creators are scaling to $10k/month without showing their face.'"
+        )
+
+        button_frame = ctk.CTkFrame(main_frame)
+        button_frame.pack(fill="x", pady=5)
+        self.video_generate_btn = ctk.CTkButton(
+            button_frame,
+            text="🎬 Generate Video",
+            fg_color="#FF6F61",
+            command=self._generate_video,
+            height=45
+        )
+        self.video_generate_btn.pack(fill="x")
+
+        self.video_status_label = ctk.CTkLabel(main_frame, text="Idle", text_color="gray")
+        self.video_status_label.pack(anchor="w", pady=(5, 0))
+
+        output_frame = ctk.CTkFrame(main_frame)
+        output_frame.pack(fill="both", expand=True, pady=10)
+        ctk.CTkLabel(output_frame, text="Generation Output", font=("Arial", 12, "bold")).pack(anchor="w", padx=5, pady=5)
+
+        self.video_output_text = ctk.CTkTextbox(output_frame, height=200)
+        self.video_output_text.pack(fill="both", expand=True, padx=5, pady=5)
+
+        self.video_open_button = ctk.CTkButton(
+            main_frame,
+            text="Open Video",
+            state="disabled",
+            command=self._open_generated_video
+        )
+        self.video_open_button.pack(fill="x", pady=(0, 10))
     
     # ===== ACTION HANDLERS =====
     
@@ -548,6 +779,171 @@ Tips:
                 text_color="cyan",
                 font=("Arial", 9)
             ).pack(anchor="w")
+
+    # ===== Remix Tab Helpers =====
+
+    def _choose_remix_file(self):
+        """Prompt user to pick a file for remixing."""
+        file_path = filedialog.askopenfilename(
+            title="Select source document",
+            filetypes=[
+                ("Text files", "*.txt *.md"),
+                ("Documents", "*.pdf *.docx"),
+                ("All files", "*.*"),
+            ]
+        )
+        if not file_path:
+            return
+        self.remix_file_path = file_path
+        self.remix_file_label.configure(text=Path(file_path).name)
+
+    def _generate_remix(self):
+        """Run remix generation and show results."""
+        source_type = self.remix_source_selector.get().lower()
+        source_payload = {"type": "text", "value": ""}
+
+        if source_type == "url":
+            url = self.remix_url_entry.get().strip()
+            if not url:
+                messagebox.showerror("Missing URL", "Paste a URL to remix.")
+                return
+            source_payload = {"type": "url", "value": url}
+        elif source_type == "file":
+            if not self.remix_file_path:
+                messagebox.showerror("Missing File", "Choose a file to remix.")
+                return
+            source_payload = {"type": "file", "value": self.remix_file_path}
+        else:
+            text_value = self.remix_text_input.get("1.0", "end-1c").strip()
+            if not text_value:
+                messagebox.showerror("Missing Text", "Enter some text to remix.")
+                return
+            source_payload = {"type": "text", "value": text_value}
+
+        targets = [name for name, var in self.remix_target_vars.items() if var.get()]
+        if not targets:
+            targets = ["instagram", "tiktok", "twitter"]
+
+        options = {"cta": self.remix_cta_entry.get().strip() or "Drop your thoughts below ⬇️"}
+
+        try:
+            job = remix_service.remix(source_payload, targets, options)
+        except Exception as exc:
+            messagebox.showerror("Remix failed", str(exc))
+            return
+
+        self._display_remix_output(job)
+        messagebox.showinfo("Remix complete", "Drafts generated for selected platforms.")
+        self._render_remix_history()
+
+    def _generate_video(self):
+        """Trigger faceless video generation in a background thread."""
+        script = self.video_script_input.get("1.0", "end-1c").strip()
+        if not script:
+            messagebox.showerror("Missing Script", "Enter a script to convert into video.")
+            return
+
+        style = self.video_style_selector.get().lower()
+        voice_label = self.video_voice_selector.get()
+        voice_key = self.video_voice_map.get(voice_label, "creator_female")
+        burn_subtitles = bool(self.video_subtitles_var.get())
+        self.video_generate_btn.configure(state="disabled", text="Generating…")
+        self.video_status_label.configure(text="Synthesizing voice + slides…", text_color="#00BCD4")
+        self.video_output_text.delete("1.0", "end")
+        threading.Thread(
+            target=self._run_video_generation,
+            args=(script, style, voice_key, burn_subtitles),
+            daemon=True,
+        ).start()
+
+    def _run_video_generation(self, script: str, style: str, voice: str, burn_subtitles: bool):
+        try:
+            job = video_ai_generator.generate_video(script, style, voice=voice, burn_subtitles=burn_subtitles)
+            self.after(0, lambda: self._handle_video_result(job, None))
+        except Exception as exc:  # pragma: no cover - UI feedback
+            self.after(0, lambda: self._handle_video_result(None, exc))
+
+    def _handle_video_result(self, job, error):
+        self.video_generate_btn.configure(state="normal", text="🎬 Generate Video")
+        if error:
+            self.video_status_label.configure(text=str(error), text_color="#FF6B6B")
+            messagebox.showerror("Video generation failed", str(error))
+            return
+
+        self.generated_video_path = job.get("video_path")
+        duration = sum(segment["duration"] for segment in job.get("segments", []))
+        self.video_duration_label.configure(text=f"Est. Duration: {duration:.1f}s")
+        status_note = f"Video ready • Voice: {job.get('voice', 'N/A')}"
+        if job.get("subtitle_file"):
+            status_note += " • Subtitles saved"
+        self.video_status_label.configure(text=status_note, text_color="#51CF66")
+        self.video_open_button.configure(state="normal")
+
+        summary_lines = ["Segments:"]
+        for idx, segment in enumerate(job.get("segments", []), start=1):
+            summary_lines.append(f"  {idx}. {segment['duration']}s – {segment['text']}")
+        summary_lines.append("")
+        summary_lines.append(f"Video saved to: {self.generated_video_path}")
+        if job.get("subtitle_file"):
+            summary_lines.append(f"Subtitles (.srt): {job['subtitle_file']}")
+        self.video_output_text.insert("1.0", "\n".join(summary_lines))
+
+    def _open_generated_video(self):
+        """Open the generated video using the OS default player."""
+        if not self.generated_video_path:
+            return
+        path = Path(self.generated_video_path)
+        if not path.exists():
+            messagebox.showerror("Missing file", "Generated video file was not found.")
+            return
+        try:
+            if sys.platform.startswith("win"):
+                os.startfile(str(path))  # type: ignore[attr-defined]
+            elif sys.platform == "darwin":
+                subprocess.call(["open", str(path)])
+            else:
+                subprocess.call(["xdg-open", str(path)])
+        except Exception as exc:
+            messagebox.showerror("Unable to open", str(exc))
+
+    def _display_remix_output(self, job):
+        """Render remix results in the output textbox."""
+        self.remix_output.delete("1.0", "end")
+        for platform, data in job.outputs.items():
+            header = f"## {platform.upper()}\n"
+            body = data.get("content", data.get("error", "No content"))
+            extra = data.get("metadata")
+            if extra:
+                body += f"\n\nMetadata: {extra}"
+            self.remix_output.insert("end", header)
+            self.remix_output.insert("end", body + "\n\n")
+
+    def _render_remix_history(self):
+        """Display recent remix jobs in history list."""
+        for widget in self.remix_history_container.winfo_children():
+            widget.destroy()
+
+        history = remix_service.recent_jobs(limit=5)
+        if not history:
+            ctk.CTkLabel(
+                self.remix_history_container,
+                text="No remix jobs yet.",
+                text_color="gray"
+            ).pack(anchor="w", padx=5, pady=5)
+            return
+
+        for job in history:
+            frame = ctk.CTkFrame(self.remix_history_container)
+            frame.pack(fill="x", pady=4, padx=4)
+            timestamp = job.get("created_at", "")
+            source_type = job.get("source", {}).get("type", "text")
+            targets = ", ".join(job.get("targets", []))
+            label = ctk.CTkLabel(
+                frame,
+                text=f"{timestamp[:16]} • {source_type} → {targets}",
+                font=("Arial", 10)
+            )
+            label.pack(anchor="w", padx=5, pady=3)
     
     def copy_to_clipboard(self, text):
         """Copy text to clipboard"""

@@ -1,204 +1,147 @@
-"# Complete Setup Instructions for Fixed FYI Uploader
+# Complete Setup Instructions for FYI Uploader (Embedded OAuth Edition)
 
 
 
-\## Files You Now Have:
+\## Files You Now Have
 
 
 
-\### Core Modules (NEW - I provided these):
+\### Core Modules (added/fixed in this drop)
 
-\- ✅ `config.py` - Configuration management
+\- ✅ `config.py` - Central configuration loader
 
-\- ✅ `exceptions.py` - Custom exceptions
+\- ✅ `exceptions.py` - Custom exception hierarchy
 
-\- ✅ `logger\_config.py` - Logging system
+\- ✅ `logger\_config.py` - Structured logging setup
 
-\- ✅ `account\_manager.py` - Multi-account support
+\- ✅ `account\_manager.py` - Multi-account storage + Fernet encryption
 
-\- ✅ `facebook\_uploader.py` - FIXED Facebook uploader
+\- ✅ `facebook\_uploader.py` - Chunked upload implementation
 
-\- ✅ `video\_validator.py` - Video validation
+\- ✅ `video\_validator.py` - FPS/resolution guardrails
 
-\- ✅ `server.py` - FIXED OAuth server
+\- ✅ `oauth\_handler.py` - Embedded OAuth callback server (replaces ngrok)
 
-\- ✅ `scheduler\_engine.py` - Upload scheduler
+\- ✅ `scheduler\_engine.py` - Background scheduler core
 
-\- ✅ `main.py` - FIXED main GUI
+\- ✅ `main.py` - Desktop UI patched with Research/Automation tabs
 
-
-
-\### Keep Your Existing Files:
-
-\- `youtube\_uploader.py` (your existing file)
-
-\- `instagram\_uploader.py` (your existing file)
+\- ✅ `start.bat` - Menu-driven launcher (desktop, API, web, tests)
 
 
 
-\## Step-by-Step Setup:
+\### Keep Your Existing Files
+
+\- `youtube\_uploader.py`
+
+\- `instagram\_uploader.py`
 
 
 
-\### 1. Create .env File
+\## Step-by-Step Setup
+
+
+
+\### 1. Create the `.env`
 
 ```bash
-
-\# Copy the example
-
 cp .env.example .env
-
-
-
-\# Edit .env and add your credentials:
-
-nano .env
-
 ```
 
-
-
-Add this content (replace with your actual values):
+Populate it with your Facebook app values (adjust as needed):
 
 ```ini
-
-FB\_APP\_ID=222188858294490
-
-FB\_APP\_SECRET=6f1c65510e626e9bb45fd5d2f52f8565
-
-NGROK\_URL=https://your-ngrok-url.ngrok-free.app
-
+FB_APP_ID=222188858294490
+FB_APP_SECRET=6f1c65510e626e9bb45fd5d2f52f8565
+OAUTH_REDIRECT_ORIGIN=http://127.0.0.1:5000  # change only if you bind to another host/port
 ```
 
+No `NGROK_URL` is required anymore. The desktop app launches a local
+callback server on demand.
 
 
-\### 2. Install Dependencies
+
+\### 2. Install dependencies
 
 ```bash
-
-pip install flask requests python-dotenv opencv-python customtkinter
-
+pip install -r requirements.txt
 ```
 
 
 
-\### 3. Start ngrok (Keep Running)
+\### 3. Launch FYI Uploader (choose one)
 
-```bash
+**Option A – Desktop only**
 
-ngrok http 5000
-
-```
-
-
-
-Copy the HTTPS URL (e.g., `https://abc123.ngrok-free.app`) and update your `.env` file:
-
-```ini
-
-NGROK\_URL=https://abc123.ngrok-free.app
-
-```
-
-
-
-\### 4. Start OAuth Server (Keep Running)
-
-Open a new terminal:
-
-```bash
-
-python server.py
-
-```
-
-
-
-You should see:
-
-```
-
-INFO | server | Starting OAuth server on 127.0.0.1:5000
-
-```
-
-
-
-\### 5. Start FYI Uploader
-
-Open another terminal:
-
-```bash
-
+```powershell
+cd /d D:\FYIUploader
+venv\Scripts\activate
 python main.py
-
 ```
 
+**Option B – Use the startup menu (recommended)**
 
+Double-click `start.bat` and pick the mode you need:
 
-\## First Time Usage:
+1. Desktop app only.
+2. Desktop + REST API (`api_server.py`).
+3. Desktop + Web Control Center (FastAPI + NiceGUI).
+4. Web Control Center only (served at http://127.0.0.1:8080).
+5. End-to-end tests.
 
-
-
-\### Link Facebook Account:
-
-1\. Click \*\*\\"Facebook\\"\*\* tab
-
-2\. Click \*\*\\"LINK FACEBOOK\\"\*\* button
-
-3\. Browser opens → Login to Facebook
-
-4\. Grant all permissions
-
-5\. You'll see \\"Authentication Successful\\"
-
-6\. Close browser
-
-7\. GUI now shows \\"Facebook Linked\\" with upload buttons
+Every option spawns its own terminal windows, so you no longer have to
+manually juggle ngrok or Flask processes.
 
 
 
-\### Upload Your First Video:
+\### 4. Connect Facebook/Instagram (embedded OAuth)
 
-1\. Click \*\*\\"1. Select Videos\\"\*\*
+1. Launch the desktop app and open **Accounts**.
+2. Click **Connect Facebook** or **Connect Instagram**.
+3. Your default browser opens Facebook's login + permissions screen.
+4. Approve the prompts; a local `Success!` page (127.0.0.1) appears.
+5. Close the tab — the desktop UI instantly shows `Connected as ...`.
 
-2\. Choose a video file
-
-3\. Click \*\*\\"INSTANT UPLOAD\\"\*\* to test
-
-4\. Watch progress in status bar
-
-5\. Check logs in `logs/facebook\_uploader.log`
-
-
-
-\## Features Available:
+Need to troubleshoot? Run `python oauth_handler.py` to keep the callback
+server alive for a single request, or update `OAUTH_REDIRECT_ORIGIN` in
+`.env` to bind to another host/port.
 
 
 
-\### Facebook Modes:
-
-1\. \*\*INSTANT UPLOAD\*\* - Uploads immediately to Facebook
-
-2\. \*\*SCHEDULER\*\* - Upload videos at set intervals (e.g., every 60 minutes)
-
-3\. \*\*SMART SCHEDULER\*\* - Checks last scheduled post, continues from there
+\## First-Time Usage
 
 
 
-\### Scheduler Settings:
+\### Upload a test video
 
-Click \*\*\\"Scheduler Settings\\"\*\* to configure:
+1. Click **1. Select Videos** and choose a sample clip.
+2. Use **INSTANT UPLOAD** (quick manual check) or **SMART SCHEDULER** for
+	 auto-spacing.
+3. Watch live status updates under the queue table.
+4. Review `logs/facebook_uploader.log` if you need deeper traces.
 
-\- \*\*Interval Mode\*\*: Upload every X days/hours/minutes
-
-\- \*\*Specific Time\*\*: Upload at exact date/time
 
 
+\### Scheduler modes
 
-\### YouTube/Instagram:
+1. **INSTANT UPLOAD** – Push immediately.
+2. **SCHEDULER** – Interval-based scheduling (every X minutes).
+3. **SMART SCHEDULER** – Reads your page's backlog, queues in parallel,
+	 and tracks elapsed time per upload.
 
-Keep using your existing `youtube\_uploader.py` and `instagram\_uploader.py` files.
+Use **Scheduler Settings** to toggle interval vs. specific timestamp.
+
+
+
+\## Optional Extras
+
+- `python test_e2e.py --verbose` — run all 82 regression tests.
+- `python -m web.app` — launch the browser-based Control Center without
+	using `start.bat`.
+- `python cleanup.py` — remove cached build artifacts/logs if needed.
+
+That's it — no ngrok tunnels, no extra terminals, and no manual OAuth
+server required.
 
 
 

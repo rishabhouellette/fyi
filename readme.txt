@@ -1,91 +1,67 @@
+FYI Uploader — Quick Start (November 2025)
+=========================================
+
+This repo now ships with the embedded OAuth handler and a menu-driven
+startup script, so you no longer need ngrok or extra terminals.
+
+Recommended workflow
+--------------------
+
+1. Open PowerShell and switch to the project folder:
+	 ````powershell
+	 cd /d D:\FYIUploader
+	 ````
+2. Activate the virtual environment:
+	 ````powershell
+	 venv\Scripts\activate
+	 ````
+3. Launch the desktop app (no tunnels required):
+	 ````powershell
+	 python main.py
+	 ````
+	 or simply double-click `start.bat` and choose option **1**.
+
+Need the API or web UI too?
+--------------------------
+- `start.bat` option **2** launches the REST API + desktop app.
+- `start.bat` option **3** launches the desktop app + Web Control Center.
+- `start.bat` option **4** launches only the Web Control Center
+	(FastAPI + NiceGUI at http://127.0.0.1:8080).
+
+Connecting Facebook/Instagram
+-----------------------------
+- Click **Connect** inside the Accounts panel.
+- Your browser opens Facebook's OAuth page.
+- After approving, a local `Success!` tab loads (served from 127.0.0.1).
+- Close the tab and the desktop UI updates immediately.
+
+If you ever need to adjust the callback origin, set
+`OAUTH_REDIRECT_ORIGIN` in `.env` (defaults to `http://127.0.0.1:5000`).
+
+Running tests (optional)
+------------------------
+````powershell
 cd /d D:\FYIUploader
 venv\Scripts\activate
-pip install -r requirements.txt
-ngrok http 5000
-python main.py --server
-Python main.py
-
-____________________________________
-
-Perfect! Your setup is still there. Here's the exact workflow:
-
-Updated Workflow - Post-Upgrade
-# 1. Navigate to project
-cd /d D:\FYIUploader
-
-# 2. Activate virtual environment (same as before)
-venv\Scripts\activate
-
-# 3. Start ngrok tunnel (same as before)
-ngrok http 5000
-
-# 4. In a NEW PowerShell window, activate venv again
-cd /d D:\FYIUploader
-venv\Scripts\activate
-
-# 5. Run the main application (same as before)
-python main.py
-
-What's Different After This Update?
-✅ Nothing changes for running main.py!
-
-Your application works exactly the same way. The updates this session added:
-
-Instagram OAuth Fix - Automatic scope validation (happens silently in background)
-E2E Test Suite - NEW: You can now run tests anytime to verify everything works
-Documentation - NEW: Reference guides if you need help
-NEW: How to Run Tests (Optional)
-In your venv-activated terminal, you can also run:
-# Run all tests to verify everything works
-python test_e2e.py
-
-# Run with detailed output
 python test_e2e.py --verbose
+````
+Expect all 82 flows to pass.
 
-# Run specific module tests
-python test_e2e.py --module Instagram
+What changed in this upgrade?
+----------------------------
+- Embedded OAuth handler (`oauth_handler.py`) replaces ngrok+Flask.
+- `start.bat` now offers five curated launch options.
+- Desktop app includes Research Lab + Automation Lab tabs by default.
+- Documentation refreshed (`README.md`, `WEB_FRONTEND.md`, etc.).
 
+Diagnostics
+-----------
+- Need to keep the OAuth server running for troubleshooting?
+	Run `python oauth_handler.py` (single callback per run).
+- Want to sanity-check the Smart Scheduler? Use
+	`Automation Lab -> Smart Timing` inside the desktop UI or the Web Control
+	Center.
 
-
-Expected output: 82 tests passing ✓
-
-Your Exact Command Sequence (Unchanged)
-# Terminal 1: Ngrok tunnel
-cd /d D:\FYIUploader
-venv\Scripts\activate
-ngrok http 5000
-
-# Terminal 2: Main app
-cd /d D:\FYIUploader
-venv\Scripts\activate
-python main.py
-
-That's it! Everything else is automatic. The Instagram fix runs in the background, and tests are optional for verification.
-
-________________________________________
-Summary
-✅ Complete Folder Audit Finished
-
-Your FYI Uploader is production-ready:
-
-36 Python files: Zero errors, all functional
-18 UI tabs: Fully operational
-82 tests: All passing
-Code quality: Excellent
-Video storage: Optimized (no local storage waste)
-Folder size: 320.82 MB (mostly necessary Python environment)
-What I've done for you:
-
-✅ Fixed Instagram OAuth issue
-✅ Created 82-test E2E testing framework
-✅ Generated comprehensive documentation (9+ files)
-✅ Fixed ui_monitoring.py font error
-✅ Created automation scripts (start.bat, cleanup.bat)
-✅ Complete code audit (0 errors in 36 files)
-Next steps:
-
-To launch: Double-click start.bat → Choose option 2 (GUI + Ngrok recommended)
-To test: Run python test_e2e.py
-To optimize (optional): Run cleanup.bat to remove old files (~80 KB)
-Everything is working perfectly. You're ready to deploy!
+Everything else remains the same: 36 Python files load cleanly, 82 tests
+pass, and the desktop UI continues to be the canonical surface.
 

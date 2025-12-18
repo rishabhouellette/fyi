@@ -17,6 +17,38 @@ MAIN FEATURES:
 - Generate AI-powered content and hashtag suggestions
 - Create white-label instances for agencies
 - Comprehensive security with 2FA and API management
+- NiceGUI browser console + Next.js portal for remote ops
+- Tauri desktop shell that bootstraps the backend for partners
+
+
+================================================================================
+MULTI-SURFACE ACCESS (PHASE 4)
+================================================================================
+
+FYI now ships with three interchangeable surfaces so every persona can work from
+their preferred environment:
+
+1. **CustomTkinter Desktop (main.py)** – Full power user interface with all 18 tabs
+    plus Automation/Research/Viral Labs. Launch via `python main.py` or `start.bat`.
+2. **NiceGUI Control Center** – Run `python -m web.app` (or `python backend/main.py`)
+    to open `http://127.0.0.1:8000/ui/`. This mirrors Calendar, Bulk Upload,
+    Automation Lab, Research Lab, and Viral Coach for browser-only operators.
+3. **Next.js Pro Portal** – `cd web/next-portal && npm run dev` serves the SaaS-style
+    dashboard used by clients. Calendar + Bulk Upload talk to `/api/v1/posts` with the
+    same API-key security. See `WEB_FRONTEND.md` for deployment guidance.
+
+### Tauri Desktop Shell (Optional)
+- Located under `tauri/`, `npm run dev` or `npm run build` creates a native wrapper
+   that launches the backend and loads NiceGUI automatically.
+- Signed release builds are in flight (certificate plan documented in
+   `tauri/DISTRIBUTION.md`). Until then, distribute unsigned lab builds to trusted beta
+   teams only.
+
+### Where to Track Releases
+- `RELEASE_NOTES.md` captures every Phase drop, QA snapshot, and next steps.
+- `PROJECT_STATUS.txt` summarizes the current roadmap and phase completion state.
+- `PHASE_5_PLAN.md` outlines the knowledge base + community backlog if you are
+   coordinating customer communications.
 
 
 ================================================================================
@@ -943,6 +975,8 @@ Documentation Files:
 → TESTING_GUIDE.md            Testing procedures
 → OAUTH_SCOPES_FIX.md         Instagram OAuth troubleshooting
 → FINAL_COMPLETION_REPORT.md  Complete system overview
+→ RELEASE_NOTES.md            Phase-by-phase changelog + QA snapshots
+→ PHASE_5_PLAN.md             Knowledge base + community roadmap
 
 Logs & Debugging:
 → logs/app.log                Main application log
