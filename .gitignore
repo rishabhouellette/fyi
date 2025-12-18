@@ -22,3 +22,19 @@ data/*.txt
 data/*.json
 logs/
 __pycache__/
+
+# Local databases / uploads
+*.db
+*.sqlite
+*.sqlite3
+data/uploads/
+
+# Local TLS certs/keys
+*.pem
+*.key
+
+# Vite/Tauri artifacts
+desktop/node_modules/
+desktop/dist/
+desktop/.vite/
+desktop/src-tauri/target/
