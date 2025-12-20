@@ -64,7 +64,7 @@ goto post_launch
 
 :web_control_center
 call :launch_python "Web Control Center" "python -m backend.main"
-start "" http://127.0.0.1:%FYI_WEB_PORT%/ui/
+start "" http://127.0.0.1:%FYI_WEB_PORT%/
 goto post_launch
 
 :backend_debug
@@ -105,13 +105,13 @@ goto menu
 :start_script
 set "WINDOW_TITLE=%~1"
 set "SCRIPT=%~2"
-start "%WINDOW_TITLE%" cmd /k "cd /d \"%ROOT%\" && call \"%ROOT%\%SCRIPT%\""
+start "%WINDOW_TITLE%" cmd /k ""cd /d "%ROOT%" && call "%ROOT%\%SCRIPT%"""
 exit /b 0
 
 :launch_python
 set "WINDOW_TITLE=%~1"
 set "RUN_COMMAND=%~2"
-start "%WINDOW_TITLE%" cmd /k "cd /d \"%ROOT%\" && call \"%VENV_ACTIVATE%\" && %RUN_COMMAND%"
+start "%WINDOW_TITLE%" cmd /k ""cd /d "%ROOT%" && call "%VENV_ACTIVATE%" && %RUN_COMMAND%"""
 exit /b 0
 
 :banner
