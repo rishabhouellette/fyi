@@ -1,13 +1,4 @@
 @echo off
-echo ====================================
-echo FYI Social Infinity - Development Mode
-echo ====================================
-echo.
+REM Wrapper kept for backwards compatibility.
+call "%~dp0scripts\windows\start_desktop.bat" %*
 
-cd desktop
-
-echo Starting development server...
-echo Frontend: http://localhost:5173
-echo.
-
-call npm run tauri:dev

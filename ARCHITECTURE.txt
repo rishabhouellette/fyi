@@ -273,8 +273,8 @@ Before Production:
 
 ═══════════════════════════════════════════════════════════════════════════════
 
-For detailed integration steps, see INTEGRATION_GUIDE.txt
-For feature descriptions, see PHASE_2_COMPLETE.txt
-For project overview, see PROJECT_STATUS.txt
+For detailed integration steps, see docs/guides/INTEGRATION_GUIDE.txt
+For feature descriptions, see docs/phases/PHASE_2_COMPLETE.txt
+For project overview, see docs/status/PROJECT_STATUS.txt
 
 ═══════════════════════════════════════════════════════════════════════════════
