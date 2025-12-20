@@ -4,7 +4,9 @@ echo Building FYI Social Infinity Desktop
 echo ====================================
 echo.
 
-cd desktop
+setlocal
+for %%I in ("%~dp0..\..") do set "ROOT=%%~fI"
+cd /d "%ROOT%\desktop"
 
 echo [1/4] Installing dependencies...
 call npm install
@@ -40,3 +42,5 @@ echo - Windows MSI: desktop\src-tauri\target\release\bundle\msi\
 echo - Windows NSIS: desktop\src-tauri\target\release\bundle\nsis\
 echo.
 pause
+
+endlocal

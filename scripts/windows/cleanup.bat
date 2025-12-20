@@ -21,10 +21,10 @@ echo Options:
 echo.
 echo 1) View Report Only (No changes)
 echo 2) Clean Python Cache (__pycache__)
-echo 3) Delete Old Documentation Files
-echo 4) Delete Redundant Code Files
+echo 3) (Disabled) Delete Old Documentation Files
+echo 4) (Disabled) Delete Redundant Code Files
 echo 5) Archive Old Logs
-echo 6) FULL CLEANUP (All of above)
+echo 6) FULL CLEANUP (Cache + Logs)
 echo 7) Exit
 echo.
 
@@ -46,7 +46,15 @@ echo ===========================================================================
 echo FOLDER AUDIT REPORT
 echo ================================================================================
 echo.
-type FOLDER_AUDIT_REPORT.txt
+if exist "docs\reports\FOLDER_AUDIT_REPORT.txt" (
+    type "docs\reports\FOLDER_AUDIT_REPORT.txt"
+) else (
+    if exist "FOLDER_AUDIT_REPORT.txt" (
+        type "FOLDER_AUDIT_REPORT.txt"
+    ) else (
+        echo Report not found: docs\reports\FOLDER_AUDIT_REPORT.txt
+    )
+)
 echo.
 pause
 goto end
@@ -81,45 +89,12 @@ echo ===========================================================================
 echo DELETING OLD DOCUMENTATION
 echo ================================================================================
 echo.
-echo Files to delete:
-echo - File Structure.txt
-echo - PHASE_2_COMPLETE.txt
-echo - README_PHASE_2.txt
-echo - DELIVERABLES.txt
-echo - MANIFEST.txt
-echo - ARCHITECTURE.txt
-echo - INTEGRATION_GUIDE.txt
-echo - PROJECT_STATUS.txt
-echo - SETUP_INSTRUCTIONS.txt
-echo - TASK_12_COMPLETION.md
-echo - fyi_successfully_scheduled.txt
-echo - readme.txt
+echo This option is disabled.
 echo.
-echo Space saved: ~30 KB
-echo Risk: None (all info in new docs)
+echo Why: Documentation was reorganized into the repo under docs/.
+echo Deleting files here can remove important project docs.
 echo.
-
-set /p confirm="Continue? (y/n): "
-if /i "%confirm%"=="y" (
-    echo Deleting old documentation files...
-    del /f "File Structure.txt" 2>nul
-    del /f PHASE_2_COMPLETE.txt 2>nul
-    del /f README_PHASE_2.txt 2>nul
-    del /f DELIVERABLES.txt 2>nul
-    del /f MANIFEST.txt 2>nul
-    del /f ARCHITECTURE.txt 2>nul
-    del /f INTEGRATION_GUIDE.txt 2>nul
-    del /f PROJECT_STATUS.txt 2>nul
-    del /f SETUP_INSTRUCTIONS.txt 2>nul
-    del /f TASK_12_COMPLETION.md 2>nul
-    del /f fyi_successfully_scheduled.txt 2>nul
-    del /f readme.txt 2>nul
-    echo.
-    echo ✓ Old documentation deleted successfully!
-    echo.
-) else (
-    echo Cancelled.
-)
+echo Use scripts\windows\cleanup_safe.bat for safe cleanup.
 pause
 goto start
 
@@ -129,27 +104,11 @@ echo ===========================================================================
 echo DELETING REDUNDANT CODE FILES
 echo ================================================================================
 echo.
-echo Files to delete:
-echo - test.py (use test_e2e.py instead)
-echo - fb_diagnostics.py (functionality integrated)
-echo - check_token_scopes.py (integrated into instagram_uploader.py)
+echo This option is disabled.
 echo.
-echo Space saved: ~50 KB
-echo Risk: None (functionality moved elsewhere)
+echo Why: Source files are part of the repo; deletion should be done via git.
 echo.
-
-set /p confirm="Continue? (y/n): "
-if /i "%confirm%"=="y" (
-    echo Deleting redundant code files...
-    del /f test.py 2>nul
-    del /f fb_diagnostics.py 2>nul
-    del /f check_token_scopes.py 2>nul
-    echo.
-    echo ✓ Redundant code files deleted successfully!
-    echo.
-) else (
-    echo Cancelled.
-)
+echo Use scripts\windows\cleanup_safe.bat for safe cleanup.
 pause
 goto start
 
@@ -188,14 +147,12 @@ echo ===========================================================================
 echo FULL CLEANUP - ALL OPTIMIZATIONS
 echo ================================================================================
 echo.
-echo This will perform ALL cleanup steps:
+echo This will perform safe cleanup steps:
 echo 1. Clean Python cache (__pycache__)
-echo 2. Delete old documentation (12 files)
-echo 3. Delete redundant code (3 files)
-echo 4. Archive old logs
+echo 2. Archive old logs
 echo.
-echo Total space saved: ~30-50 MB
-echo Risk: None (all changes safe)
+echo Total space saved: depends on cache/logs
+echo Risk: Low
 echo.
 echo BACKUP RECOMMENDED BEFORE PROCEEDING!
 echo.
@@ -208,30 +165,7 @@ if /i "%confirm%"=="y" (
     echo ✓ Done
     echo.
     
-    echo ✓ Step 2: Deleting old documentation...
-    del /f "File Structure.txt" 2>nul
-    del /f PHASE_2_COMPLETE.txt 2>nul
-    del /f README_PHASE_2.txt 2>nul
-    del /f DELIVERABLES.txt 2>nul
-    del /f MANIFEST.txt 2>nul
-    del /f ARCHITECTURE.txt 2>nul
-    del /f INTEGRATION_GUIDE.txt 2>nul
-    del /f PROJECT_STATUS.txt 2>nul
-    del /f SETUP_INSTRUCTIONS.txt 2>nul
-    del /f TASK_12_COMPLETION.md 2>nul
-    del /f fyi_successfully_scheduled.txt 2>nul
-    del /f readme.txt 2>nul
-    echo ✓ Done
-    echo.
-    
-    echo ✓ Step 3: Deleting redundant code...
-    del /f test.py 2>nul
-    del /f fb_diagnostics.py 2>nul
-    del /f check_token_scopes.py 2>nul
-    echo ✓ Done
-    echo.
-    
-    echo ✓ Step 4: Archiving logs...
+    echo ✓ Step 2: Archiving logs...
     if not exist logs\archive mkdir logs\archive
     move logs\*.log logs\archive\ 2>nul
     echo ✓ Done

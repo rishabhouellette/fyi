@@ -7,16 +7,24 @@ echo FYI Social Infinity - Phase 2 Setup
 echo ====================================
 echo.
 
+setlocal
+for %%I in ("%~dp0..\..") do set "ROOT=%%~fI"
+cd /d "%ROOT%"
+
+set "PYTHON=python"
+if exist "%ROOT%\venv\Scripts\python.exe" set "PYTHON=%ROOT%\venv\Scripts\python.exe"
+
 REM Check if Python is available
-python --version >nul 2>&1
+"%PYTHON%" --version >nul 2>&1
 if %errorlevel% neq 0 (
     echo [ERROR] Python not found! Please install Python 3.11+
     pause
+    endlocal
     exit /b 1
 )
 
 echo [1/5] Installing Python dependencies...
-pip install -r requirements.txt
+"%PYTHON%" -m pip install -r "%ROOT%\requirements.txt"
 
 echo.
 echo [2/5] Checking FFmpeg installation...
@@ -62,7 +70,7 @@ echo This may take a while (downloading 50GB+)...
 echo.
 
 REM Download models using Python
-python -c "from ai_engine import get_ollama_manager; m = get_ollama_manager(); m.setup_recommended_models()"
+"%PYTHON%" -c "from ai_engine import get_ollama_manager; m = get_ollama_manager(); m.setup_recommended_models()"
 
 if %errorlevel% neq 0 (
     echo.
@@ -78,7 +86,9 @@ echo ====================================
 echo.
 echo Next steps:
 echo 1. Test the installation: python -c "from video_lab import get_auto_editor; print('OK')"
-echo 2. Read PHASE_2_README.md for usage examples
+echo 2. Read docs\phases\PHASE_2_README.md for usage examples
 echo 3. Process your first video!
 echo.
 pause
+
+endlocal
