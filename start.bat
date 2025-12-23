@@ -19,6 +19,9 @@ set "FYI_API_PORT=5000"
 set "FYI_OAUTH_REDIRECT=https://127.0.0.1:5000/oauth/callback"
 set "OAUTH_REDIRECT_ORIGIN=https://127.0.0.1:5000"
 
+REM Auto-open the Live Errors window when launching main apps
+set "AUTO_OPEN_ERRORS=1"
+
 if not exist "%VENV_ACTIVATE%" (
     echo [ERROR] Virtual environment not found at: %VENV_ACTIVATE%
     echo Create it with: python -m venv venv
@@ -78,6 +81,7 @@ REM ----------------------------------------------------------------------------
 :desktop_app
 REM NiceGUI app with no auto browser
 call :launch_python_env "Desktop App" "NICEGUI_NO_BROWSER=1 NICEGUI_PORT=8080" "python main.py"
+if "%AUTO_OPEN_ERRORS%"=="1" call :tail_logs
 goto post_launch
 
 :all_apis
@@ -89,6 +93,7 @@ goto post_launch
 :browser_app
 call :launch_python_env "Control Center" "" "python -m backend.main"
 start "" http://127.0.0.1:%FYI_WEB_PORT%/
+if "%AUTO_OPEN_ERRORS%"=="1" call :tail_logs
 goto post_launch
 
 :live_errors
