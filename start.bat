@@ -77,17 +77,17 @@ REM ----------------------------------------------------------------------------
 
 :desktop_app
 REM NiceGUI app with no auto browser
-call :launch_python "Desktop App" "set NICEGUI_NO_BROWSER=1 ^& set NICEGUI_PORT=8080 ^& python main.py"
+call :launch_python_env "Desktop App" "NICEGUI_NO_BROWSER=1 NICEGUI_PORT=8080" "python main.py"
 goto post_launch
 
 :all_apis
 REM Desktop API (Flask) + Integration API (legacy HTTPServer)
-call :launch_python "Desktop API + OAuth" "python desktop_api.py"
-call :launch_python "Integration API" "python api_server.py"
+call :launch_python_env "Desktop API + OAuth" "" "python desktop_api.py"
+call :launch_python_env "Integration API" "" "python api_server.py"
 goto post_launch
 
 :browser_app
-call :launch_python "Control Center" "python -m backend.main"
+call :launch_python_env "Control Center" "" "python -m backend.main"
 start "" http://127.0.0.1:%FYI_WEB_PORT%/
 goto post_launch
 
@@ -104,7 +104,7 @@ call :start_script "Safe Cleanup" "cleanup_safe.bat"
 goto post_launch
 
 :run_tests
-call :launch_python "End-to-End Tests" "python test_e2e.py --verbose"
+call :launch_python_env "End-to-End Tests" "" "python test_e2e.py --verbose"
 goto post_launch
 
 :post_launch
@@ -117,13 +117,18 @@ goto menu
 :start_script
 set "WINDOW_TITLE=%~1"
 set "SCRIPT=%~2"
-start "%WINDOW_TITLE%" cmd /v:on /s /k ""cd /d "%ROOT%" ^& call "%ROOT%\%SCRIPT%"""
+start "%WINDOW_TITLE%" cmd /v:on /s /k ""cd /d ""%ROOT%"" ^& call ""%ROOT%\%SCRIPT%""""
 exit /b 0
 
-:launch_python
+:launch_python_env
 set "WINDOW_TITLE=%~1"
-set "RUN_COMMAND=%~2"
-start "%WINDOW_TITLE%" cmd /v:on /s /k ""cd /d "%ROOT%" ^& call "%VENV_ACTIVATE%" ^& %RUN_COMMAND%"""
+set "ENVVARS=%~2"
+set "RUN_COMMAND=%~3"
+set "ENV_CHAIN="
+if defined ENVVARS (
+    for %%A in (%ENVVARS%) do set "ENV_CHAIN=!ENV_CHAIN! ^& set %%~A"
+)
+start "%WINDOW_TITLE%" cmd /v:on /s /k ""cd /d ""%ROOT%"" ^& call ""%VENV_ACTIVATE%""!ENV_CHAIN! ^& %RUN_COMMAND%""
 exit /b 0
 
 :banner
