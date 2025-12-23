@@ -117,13 +117,13 @@ goto menu
 :start_script
 set "WINDOW_TITLE=%~1"
 set "SCRIPT=%~2"
-start "%WINDOW_TITLE%" cmd /k ""cd /d "%ROOT%" && call "%ROOT%\%SCRIPT%""
+start "%WINDOW_TITLE%" cmd /v:on /s /k ""cd /d "%ROOT%" ^& call "%ROOT%\%SCRIPT%"""
 exit /b 0
 
 :launch_python
 set "WINDOW_TITLE=%~1"
 set "RUN_COMMAND=%~2"
-start "%WINDOW_TITLE%" cmd /k ""cd /d "%ROOT%" && call "%VENV_ACTIVATE%" && %RUN_COMMAND%""
+start "%WINDOW_TITLE%" cmd /v:on /s /k ""cd /d "%ROOT%" ^& call "%VENV_ACTIVATE%" ^& %RUN_COMMAND%"""
 exit /b 0
 
 :banner
