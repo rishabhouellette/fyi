@@ -1,0 +1,35 @@
+{
+  "credits_used": 52,
+  "history": [
+    {
+      "timestamp": "2026-02-24T11:06:29.751970",
+      "feature": "video_generation",
+      "credits": 50,
+      "details": {
+        "provider": "veo",
+        "prompt": "A cat walking on a moonlit beach"
+      }
+    },
+    {
+      "timestamp": "2026-02-27T06:56:36.238478",
+      "feature": "translation",
+      "credits": 1,
+      "details": {
+        "target": "es",
+        "chars": 11
+      }
+    },
+    {
+      "timestamp": "2026-02-27T06:57:12.445238",
+      "feature": "translation",
+      "credits": 1,
+      "details": {
+        "target": "es",
+        "chars": 11
+      }
+    }
+  ],
+  "limits": {
+    "monthly": 5000
+  }
+}

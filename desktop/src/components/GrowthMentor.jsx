@@ -17,7 +17,7 @@ import {
   Share2
 } from 'lucide-react';
 import { LineChart, Line, AreaChart, Area, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer } from 'recharts';
-import { getGrowthReport } from '../lib/tauri';
+import { getGrowthReport } from '../lib/apiClient';
 
 const GrowthMentor = () => {
   const [timeRange, setTimeRange] = useState(30);
@@ -52,10 +52,36 @@ const GrowthMentor = () => {
   }, [timeRange]);
 
   const loadGrowthReport = async () => {
-    const report = await getGrowthReport(timeRange);
-    if (report && !report.error) {
-      console.log('Growth Report:', report);
-      // Update state with real data when backend is connected
+    try {
+      const report = await getGrowthReport(timeRange);
+      if (report) {
+        console.log('Growth Report:', report);
+
+        if (Array.isArray(report.insights) && report.insights.length > 0) {
+          setInsights(
+            report.insights.slice(0, 6).map((text, idx) => ({
+              id: idx + 1,
+              type: 'tip',
+              title: `Insight ${idx + 1}`,
+              description: String(text),
+              impact: idx < 2 ? 'high' : idx < 4 ? 'medium' : 'low'
+            }))
+          );
+        }
+
+        if (report.predictions) {
+          setPredictions(prev => ({
+            ...prev,
+            confidence: prev.confidence,
+            nextMonth: {
+              ...prev.nextMonth,
+              followers: report.predictions.next_week_followers ?? prev.nextMonth.followers
+            }
+          }));
+        }
+      }
+    } catch (error) {
+      console.error('Failed to load growth report:', error);
     }
   };
 

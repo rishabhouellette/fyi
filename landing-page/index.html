@@ -1,0 +1,929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>FYIXT — Post Once. Publish Everywhere. Grow on Autopilot.</title>
+<meta name="description" content="FYIXT is the AI-powered social media command center. Create a week of content in minutes, post everywhere, and grow your brand 10x faster."/>
+<meta property="og:title" content="FYIXT — Post Once. Publish Everywhere."/>
+<meta property="og:description" content="AI-powered social media command center for creators, brands & agencies."/>
+<meta property="og:type" content="website"/>
+<meta property="og:url" content="https://fyixt.com"/>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Space+Grotesk:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet"/>
+<style>
+/*═══════════ RESET ═══════════*/
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+body{font-family:'Inter',system-ui,sans-serif;background:#06060a;color:#d4d4dc;line-height:1.65;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+img{max-width:100%;display:block}
+button{font-family:inherit;cursor:pointer}
+
+/*═══════════ VARS ═══════════*/
+:root{
+  --lime:#b9ff66;--cyan:#22d3ee;--violet:#a78bfa;--rose:#fb7185;--amber:#fbbf24;
+  --dark:#06060a;--card:#0d0d12;--card2:#111118;--border:rgba(255,255,255,.06);
+  --muted:#71717a;--text:#d4d4dc;
+  --r:14px;--max:1120px;
+}
+
+/*═══════════ UTILITY ═══════════*/
+.container{max-width:var(--max);margin:0 auto;padding:0 24px}
+section{padding:100px 0;position:relative}
+.sc{font-family:'Space Grotesk',sans-serif}
+.mono{font-family:'JetBrains Mono',monospace}
+
+/*═══════════ BUTTONS ═══════════*/
+.btn{display:inline-flex;align-items:center;gap:8px;padding:12px 28px;border-radius:10px;font-size:.9rem;font-weight:600;transition:all .25s;border:none;cursor:pointer;white-space:nowrap}
+.btn-lime{background:var(--lime);color:#0a0a0a}.btn-lime:hover{background:#cbff85;transform:translateY(-1px);box-shadow:0 8px 30px rgba(185,255,102,.2)}
+.btn-dark{background:rgba(255,255,255,.06);color:#e4e4e7;border:1px solid var(--border)}.btn-dark:hover{background:rgba(255,255,255,.1);border-color:rgba(255,255,255,.12)}
+.btn-outline{background:transparent;border:1px solid var(--border);color:var(--text)}.btn-outline:hover{border-color:var(--lime);color:var(--lime)}
+.btn-lg{padding:15px 36px;font-size:1rem;border-radius:12px}
+
+/*═══════════ NAV ═══════════*/
+nav{position:fixed;top:0;left:0;right:0;z-index:100;padding:14px 0;transition:all .35s}
+nav.scrolled{background:rgba(6,6,10,.9);backdrop-filter:blur(20px) saturate(1.3);border-bottom:1px solid var(--border)}
+nav .container{display:flex;align-items:center;justify-content:space-between}
+.logo{font-family:'Space Grotesk',sans-serif;font-size:1.55rem;font-weight:800;letter-spacing:-.04em;color:var(--lime)}
+.nav-mid{display:flex;gap:32px}
+.nav-mid a{font-size:.87rem;font-weight:500;color:var(--muted);transition:color .2s}
+.nav-mid a:hover{color:#fff}
+.nav-right{display:flex;align-items:center;gap:12px}
+.hamburger{display:none;background:none;border:none;flex-direction:column;gap:5px;padding:4px}
+.hamburger span{width:22px;height:2px;background:#e4e4e7;border-radius:2px}
+@media(max-width:768px){
+  .hamburger{display:flex}
+  .nav-mid,.nav-right .btn-dark{display:none}
+  .nav-mid.open{display:flex;position:absolute;top:100%;left:0;right:0;flex-direction:column;background:rgba(6,6,10,.97);backdrop-filter:blur(20px);padding:20px 24px;border-bottom:1px solid var(--border);gap:14px}
+}
+
+/*═══════════ HERO ═══════════*/
+.hero{min-height:100vh;display:flex;align-items:center;padding:120px 0 60px;position:relative;overflow:hidden}
+.hero-glow{position:absolute;top:-100px;left:50%;transform:translateX(-50%);width:1000px;height:600px;background:radial-gradient(ellipse,rgba(185,255,102,.06) 0%,rgba(34,211,238,.03) 40%,transparent 70%);pointer-events:none}
+.hero-layout{display:grid;grid-template-columns:1fr 1fr;gap:64px;align-items:center}
+.hero-tag{display:inline-flex;align-items:center;gap:8px;padding:5px 14px 5px 8px;border-radius:100px;background:rgba(185,255,102,.06);border:1px solid rgba(185,255,102,.12);font-size:.78rem;font-weight:600;color:var(--lime);margin-bottom:24px}
+.hero-tag .dot{width:7px;height:7px;border-radius:50%;background:var(--lime);animation:pulse 2s ease-in-out infinite}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(185,255,102,.3)}50%{box-shadow:0 0 0 8px rgba(185,255,102,0)}}
+.hero h1{font-family:'Space Grotesk',sans-serif;font-size:clamp(2.6rem,6vw,4.4rem);font-weight:800;line-height:1.05;letter-spacing:-.045em;margin-bottom:20px;color:#f4f4f5}
+.hero h1 .hl{color:var(--lime);position:relative}
+.hero-sub{font-size:1.1rem;color:var(--muted);max-width:480px;margin-bottom:32px;line-height:1.7}
+.hero-sub strong{color:var(--text);font-weight:600}
+.hero-ctas{display:flex;gap:12px;flex-wrap:wrap;margin-bottom:24px}
+.hero-proof{display:flex;align-items:center;gap:10px;font-size:.82rem;color:#52525b}
+.hero-proof .faces{display:flex}
+.hero-proof .face{width:28px;height:28px;border-radius:50%;border:2px solid var(--dark);margin-left:-8px;display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700;color:#000}
+.hero-proof .face:first-child{margin-left:0}
+
+/* Hero mockup */
+.mockup-wrap{position:relative}
+.mockup-glow{position:absolute;width:500px;height:500px;background:radial-gradient(circle,rgba(185,255,102,.08),transparent 65%);top:50%;left:50%;transform:translate(-50%,-50%);pointer-events:none}
+.mockup{border-radius:16px;overflow:hidden;border:1px solid var(--border);background:var(--card);box-shadow:0 40px 100px rgba(0,0,0,.5);transform:perspective(1400px) rotateY(-3deg) rotateX(1.5deg);transition:transform .6s}
+.mockup:hover{transform:perspective(1400px) rotateY(0) rotateX(0)}
+.m-bar{height:34px;background:rgba(255,255,255,.02);border-bottom:1px solid var(--border);display:flex;align-items:center;gap:6px;padding:0 12px}
+.m-dot{width:9px;height:9px;border-radius:50%}.m-dot.r{background:#ff5f57}.m-dot.y{background:#febc2e}.m-dot.g{background:#28c840}
+.m-body{padding:16px;display:grid;grid-template-columns:120px 1fr;gap:12px;min-height:300px}
+.m-side{padding:10px 8px;display:flex;flex-direction:column;gap:2px;background:rgba(255,255,255,.015);border-radius:8px}
+.m-side-item{padding:6px 8px;border-radius:5px;font-size:.65rem;color:#52525b;display:flex;align-items:center;gap:6px}
+.m-side-item.active{background:rgba(185,255,102,.08);color:var(--lime)}
+.m-main{display:flex;flex-direction:column;gap:10px}
+.m-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.m-card{background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;padding:12px}
+.m-card .mc-label{font-size:.6rem;text-transform:uppercase;letter-spacing:.05em;color:#52525b;margin-bottom:4px}
+.m-card .mc-val{font-family:'Space Grotesk',sans-serif;font-size:1.35rem;font-weight:700}
+.m-card .mc-delta{font-size:.65rem;margin-top:2px}
+.m-card .mc-delta.up{color:#4ade80}
+.m-bar-chart{height:4px;border-radius:2px;background:rgba(255,255,255,.03);margin-top:8px;overflow:hidden}
+.m-bar-fill{height:100%;border-radius:2px;animation:barG 2.5s ease-out forwards}
+@keyframes barG{from{width:0}to{width:var(--w)}}
+
+@media(max-width:900px){
+  .hero-layout{grid-template-columns:1fr;text-align:center}
+  .hero-sub{margin-left:auto;margin-right:auto}
+  .hero-ctas,.hero-proof{justify-content:center}
+  .mockup-wrap{display:none}
+}
+
+/*═══════════ TICKER ═══════════*/
+.ticker{overflow:hidden;border-top:1px solid var(--border);border-bottom:1px solid var(--border);padding:16px 0;background:rgba(255,255,255,.01)}
+.ticker-track{display:flex;gap:48px;animation:scroll 35s linear infinite;width:max-content}
+.ticker-track span{font-size:.82rem;font-weight:600;color:#3f3f46;text-transform:uppercase;letter-spacing:.08em;display:flex;align-items:center;gap:8px;white-space:nowrap}
+.ticker-track span::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--lime);opacity:.5}
+@keyframes scroll{0%{transform:translateX(0)}100%{transform:translateX(-50%)}}
+
+/*═══════════ MEET SECTION ═══════════*/
+.meet{padding:100px 0;text-align:center}
+.meet-tag{display:inline-flex;padding:5px 14px;border-radius:100px;font-size:.72rem;font-weight:600;letter-spacing:.07em;text-transform:uppercase;color:var(--lime);background:rgba(185,255,102,.06);border:1px solid rgba(185,255,102,.1);margin-bottom:16px}
+.meet h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;letter-spacing:-.03em;color:#f4f4f5;margin-bottom:12px}
+.meet>p{color:var(--muted);max-width:520px;margin:0 auto 56px;font-size:1.05rem}
+.meet-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.meet-card{padding:32px 24px;border-radius:var(--r);background:var(--card);border:1px solid var(--border);text-align:left;transition:all .35s;position:relative;overflow:hidden}
+.meet-card:hover{border-color:rgba(185,255,102,.15);transform:translateY(-3px)}
+.meet-card .mc-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.3rem;margin-bottom:18px}
+.mc-icon.i1{background:rgba(185,255,102,.08)}.mc-icon.i2{background:rgba(34,211,238,.08)}.mc-icon.i3{background:rgba(167,139,250,.08)}
+.meet-card h3{font-size:1.1rem;font-weight:600;color:#f4f4f5;margin-bottom:8px}
+.meet-card p{font-size:.9rem;color:var(--muted);line-height:1.65}
+.meet-card .mc-stat{margin-top:16px;padding-top:16px;border-top:1px solid var(--border);font-family:'Space Grotesk',sans-serif;font-size:1.6rem;font-weight:700;color:var(--lime)}
+.meet-card .mc-stat small{font-size:.75rem;font-weight:500;color:var(--muted);display:block;margin-top:2px}
+@media(max-width:768px){.meet-grid{grid-template-columns:1fr}}
+
+/*═══════════ BEFORE / AFTER ═══════════*/
+.workflow{padding:100px 0}
+.wf-header{text-align:center;margin-bottom:56px}
+.wf-header h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;letter-spacing:-.03em;color:#f4f4f5;margin-bottom:8px}
+.wf-grid{display:grid;grid-template-columns:1fr auto 1fr;gap:24px;align-items:stretch}
+.wf-card{padding:32px;border-radius:var(--r);border:1px solid var(--border);position:relative}
+.wf-card.before{background:rgba(251,113,133,.03);border-color:rgba(251,113,133,.12)}
+.wf-card.after{background:rgba(185,255,102,.03);border-color:rgba(185,255,102,.12)}
+.wf-card .wf-label{font-size:.72rem;font-weight:700;text-transform:uppercase;letter-spacing:.08em;margin-bottom:16px;display:flex;align-items:center;gap:8px}
+.wf-card.before .wf-label{color:var(--rose)}
+.wf-card.after .wf-label{color:var(--lime)}
+.wf-card ul{list-style:none;display:flex;flex-direction:column;gap:12px}
+.wf-card ul li{font-size:.9rem;display:flex;align-items:start;gap:10px;line-height:1.5}
+.wf-card.before ul li::before{content:'✕';color:var(--rose);font-weight:700;font-size:.8rem;margin-top:2px}
+.wf-card.after ul li::before{content:'✓';color:var(--lime);font-weight:700;font-size:.8rem;margin-top:2px}
+.wf-arrow{display:flex;align-items:center;justify-content:center;font-size:2rem;color:var(--lime);opacity:.4}
+@media(max-width:768px){.wf-grid{grid-template-columns:1fr;gap:16px}.wf-arrow{transform:rotate(90deg);padding:8px 0}}
+
+/*═══════════ FEATURE SHOWCASES ═══════════*/
+.showcase{padding:80px 0}
+.sc-grid{display:grid;grid-template-columns:1fr 1fr;gap:56px;align-items:center}
+.sc-grid.rev{direction:rtl}.sc-grid.rev>*{direction:ltr}
+.sc-tag{display:inline-flex;padding:4px 12px;border-radius:6px;font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.06em;margin-bottom:12px}
+.t-lime{background:rgba(185,255,102,.08);color:var(--lime)}
+.t-cyan{background:rgba(34,211,238,.08);color:var(--cyan)}
+.t-violet{background:rgba(167,139,250,.08);color:var(--violet)}
+.t-rose{background:rgba(251,113,133,.08);color:var(--rose)}
+.sc-text h3{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.6rem,3vw,2.3rem);font-weight:700;letter-spacing:-.03em;line-height:1.12;color:#f4f4f5;margin-bottom:14px}
+.sc-text p{font-size:1rem;color:var(--muted);line-height:1.7;margin-bottom:20px}
+.sc-text ul{list-style:none;display:flex;flex-direction:column;gap:10px;margin-bottom:24px}
+.sc-text ul li{display:flex;align-items:center;gap:10px;font-size:.92rem;color:#a1a1aa}
+.sc-text ul li::before{content:'→';color:var(--lime);font-weight:700;font-size:.75rem}
+.sc-visual{border-radius:var(--r);overflow:hidden;border:1px solid var(--border);background:var(--card)}
+.sc-visual .sv-inner{padding:24px}
+@media(max-width:900px){.sc-grid,.sc-grid.rev{grid-template-columns:1fr;direction:ltr}.sc-visual{order:2}}
+
+/* Fake UI elements for showcases */
+.ai-prompt-box{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:10px;padding:14px;font-size:.82rem;color:var(--muted);margin-bottom:12px}
+.ai-prompt-box .pl{font-size:.68rem;font-weight:600;text-transform:uppercase;letter-spacing:.05em;margin-bottom:6px}
+.ai-result-box{background:rgba(167,139,250,.04);border:1px solid rgba(167,139,250,.12);border-radius:10px;padding:14px}
+.ai-result-box .rl{font-size:.68rem;font-weight:600;color:var(--lime);text-transform:uppercase;letter-spacing:.05em;margin-bottom:8px;display:flex;align-items:center;gap:6px}
+.ai-result-box .rt{font-size:.85rem;line-height:1.7;color:#b4b4bc}
+.cursor-blink{display:inline-block;width:2px;height:1em;background:var(--lime);animation:blink 1s steps(2) infinite;vertical-align:text-bottom}
+@keyframes blink{0%{opacity:1}100%{opacity:0}}
+
+.cal-grid{display:grid;grid-template-columns:repeat(7,1fr);gap:3px;margin-bottom:16px}
+.cal-grid .d{aspect-ratio:1;border-radius:5px;background:rgba(255,255,255,.015);display:flex;align-items:center;justify-content:center;font-size:.6rem;color:#3f3f46}
+.cal-grid .d.on{background:rgba(185,255,102,.1);color:var(--lime);font-weight:600}
+.cal-grid .d.hot{background:rgba(251,113,133,.1);color:var(--rose);font-weight:600}
+
+.vid-steps{display:flex;flex-direction:column;gap:10px}
+.vid-step{display:flex;align-items:center;gap:10px;font-size:.82rem}
+.vid-step .check{color:#4ade80;font-weight:700}.vid-step .spin{color:var(--lime);animation:blink 1s steps(2) infinite}
+.vid-meta{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-top:16px}
+.vm{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:10px;text-align:center}
+.vm .vm-label{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em}.vm .vm-val{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:1rem}
+
+.analytics-mini{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px;margin-bottom:16px}
+.am{background:rgba(255,255,255,.025);border:1px solid var(--border);border-radius:8px;padding:12px;text-align:center}
+.am .am-num{font-family:'Space Grotesk',sans-serif;font-size:1.25rem;font-weight:700}.am .am-label{font-size:.6rem;color:var(--muted);text-transform:uppercase;letter-spacing:.04em;margin-top:2px}
+.bar-chart{display:flex;align-items:flex-end;gap:3px;height:70px}
+.bar-chart .b{flex:1;border-radius:2px 2px 0 0;transition:height .6s}
+
+/*═══════════ PLATFORMS ═══════════*/
+.platforms{padding:80px 0;text-align:center}
+.platforms h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;letter-spacing:-.03em;color:#f4f4f5;margin-bottom:8px}
+.platforms>p{color:var(--muted);max-width:480px;margin:0 auto 0}
+.plat-row{display:flex;justify-content:center;flex-wrap:wrap;gap:14px;margin-top:48px}
+.plat-chip{display:flex;align-items:center;gap:8px;padding:10px 20px;border-radius:10px;background:var(--card);border:1px solid var(--border);font-size:.88rem;font-weight:500;transition:all .3s}
+.plat-chip:hover{border-color:var(--lime);transform:translateY(-2px)}
+.plat-chip .pi{font-size:1.2rem}
+.plat-sub{margin-top:20px;font-size:.85rem;color:#3f3f46;font-style:italic}
+
+/*═══════════ RESULTS ═══════════*/
+.results{padding:100px 0}
+.results-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-top:56px}
+.r-card{padding:28px 20px;border-radius:var(--r);background:var(--card);border:1px solid var(--border);text-align:center;transition:all .3s}
+.r-card:hover{border-color:rgba(185,255,102,.15);transform:translateY(-2px)}
+.r-card .r-num{font-family:'Space Grotesk',sans-serif;font-size:2.6rem;font-weight:700;color:var(--lime);line-height:1}
+.r-card .r-label{font-size:.82rem;color:var(--muted);margin-top:6px;line-height:1.4}
+@media(max-width:768px){.results-grid{grid-template-columns:1fr 1fr}}
+
+/*═══════════ TESTIMONIALS ═══════════*/
+.reviews{padding:100px 0}
+.rev-header{text-align:center;margin-bottom:56px}
+.rev-header h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;letter-spacing:-.03em;color:#f4f4f5;margin-bottom:8px}
+.rev-header p{color:var(--muted);max-width:480px;margin:0 auto}
+.rev-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:16px}
+.rev-card{padding:24px;border-radius:var(--r);background:var(--card);border:1px solid var(--border);display:flex;flex-direction:column}
+.rev-card .rc-stars{color:var(--amber);font-size:.8rem;margin-bottom:12px;letter-spacing:2px}
+.rev-card .rc-text{font-size:.92rem;color:#a1a1aa;line-height:1.7;flex:1;margin-bottom:16px}
+.rev-card .rc-author{display:flex;align-items:center;gap:10px;padding-top:16px;border-top:1px solid var(--border)}
+.rev-card .rc-av{width:36px;height:36px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:.75rem;color:var(--dark)}
+.rev-card .rc-name{font-size:.85rem;font-weight:600;color:#e4e4e7}
+.rev-card .rc-role{font-size:.72rem;color:var(--muted)}
+@media(max-width:768px){.rev-grid{grid-template-columns:1fr}}
+
+/*═══════════ PRICING ═══════════*/
+.pricing{padding:100px 0}
+.pr-header{text-align:center;margin-bottom:16px}
+.pr-header h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;letter-spacing:-.03em;color:#f4f4f5;margin-bottom:8px}
+.pr-header p{color:var(--muted);max-width:440px;margin:0 auto}
+.pr-toggle{display:flex;justify-content:center;margin:28px 0 48px;gap:0}
+.pr-toggle-wrap{display:flex;background:var(--card);border:1px solid var(--border);border-radius:10px;overflow:hidden}
+.pr-toggle-wrap button{padding:10px 24px;font-size:.85rem;font-weight:600;background:transparent;border:none;color:var(--muted);transition:all .2s}
+.pr-toggle-wrap button.active{background:var(--lime);color:var(--dark)}
+.pr-save{font-size:.72rem;color:var(--lime);margin-left:8px;font-weight:600}
+.pr-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.pr-card{padding:32px 24px;border-radius:var(--r);background:var(--card);border:1px solid var(--border);position:relative;transition:all .3s;display:flex;flex-direction:column}
+.pr-card.pop{border-color:var(--lime);box-shadow:0 0 60px rgba(185,255,102,.05),inset 0 1px 0 rgba(185,255,102,.15)}
+.pr-card.pop .pop-tag{position:absolute;top:-12px;left:50%;transform:translateX(-50%);padding:4px 16px;border-radius:100px;background:var(--lime);color:var(--dark);font-size:.68rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em;white-space:nowrap}
+.pr-card h3{font-size:1rem;font-weight:600;color:#e4e4e7}
+.pr-card .pr-desc{font-size:.82rem;color:var(--muted);margin:4px 0 16px;line-height:1.5}
+.pr-card .pr-price{font-family:'Space Grotesk',sans-serif;font-size:2.8rem;font-weight:700;color:#f4f4f5;margin-bottom:4px}
+.pr-card .pr-price small{font-size:.85rem;font-weight:400;color:var(--muted)}
+.pr-card .pr-period{font-size:.78rem;color:var(--muted);margin-bottom:24px}
+.pr-card ul{list-style:none;flex:1;margin-bottom:24px}
+.pr-card ul li{font-size:.86rem;color:#a1a1aa;padding:6px 0;display:flex;align-items:center;gap:8px}
+.pr-card ul li::before{content:'→';color:var(--lime);font-weight:700;font-size:.75rem}
+.pr-card .btn{width:100%;justify-content:center}
+@media(max-width:768px){.pr-grid{grid-template-columns:1fr}}
+
+/*═══════════ FAQ ═══════════*/
+.faq{padding:100px 0}
+.faq-header{text-align:center;margin-bottom:48px}
+.faq-header h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;letter-spacing:-.03em;color:#f4f4f5;margin-bottom:8px}
+.faq-list{max-width:700px;margin:0 auto}
+.faq-item{border-bottom:1px solid var(--border)}
+.faq-item summary{padding:18px 0;cursor:pointer;font-size:1rem;font-weight:600;color:#e4e4e7;list-style:none;display:flex;justify-content:space-between;align-items:center;gap:16px;user-select:none}
+.faq-item summary::before{content:attr(data-num);font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--lime);opacity:.5;min-width:24px}
+.faq-item summary::after{content:'+';font-size:1.3rem;color:var(--lime);transition:transform .3s;font-weight:300;flex-shrink:0}
+.faq-item[open] summary::after{transform:rotate(45deg)}
+.faq-item .faq-body{padding:0 0 18px 32px;font-size:.92rem;color:var(--muted);line-height:1.75}
+
+/*═══════════ FINAL CTA ═══════════*/
+.final-cta{padding:100px 0;text-align:center}
+.cta-box{padding:72px 48px;border-radius:20px;background:var(--card);border:1px solid var(--border);position:relative;overflow:hidden}
+.cta-box::before{content:'';position:absolute;inset:-1px;border-radius:20px;padding:1px;background:linear-gradient(135deg,var(--lime),var(--cyan),var(--violet));mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask-composite:exclude;pointer-events:none;opacity:.2}
+.cta-box h2{font-family:'Space Grotesk',sans-serif;font-size:clamp(1.8rem,4vw,3rem);font-weight:700;letter-spacing:-.03em;color:#f4f4f5;margin-bottom:12px;position:relative}
+.cta-box>p{color:var(--muted);font-size:1.05rem;margin-bottom:32px;position:relative}
+.cta-form{display:flex;gap:10px;max-width:440px;margin:0 auto;position:relative}
+.cta-form input{flex:1;padding:14px 18px;border-radius:10px;border:1px solid var(--border);background:rgba(255,255,255,.04);color:#fff;font-size:.95rem;outline:none;font-family:inherit;transition:border-color .2s;min-width:0}
+.cta-form input:focus{border-color:var(--lime)}
+.cta-form input::placeholder{color:#3f3f46}
+#formMsg{margin-top:14px;font-size:.88rem;color:var(--lime);display:none;position:relative}
+
+/*═══════════ FOOTER ═══════════*/
+footer{border-top:1px solid var(--border);padding:56px 0 32px}
+.f-grid{display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:40px;margin-bottom:40px}
+.f-brand p{font-size:.82rem;color:var(--muted);margin-top:8px;max-width:240px;line-height:1.6}
+.f-col h4{font-size:.7rem;font-weight:600;text-transform:uppercase;letter-spacing:.08em;color:#3f3f46;margin-bottom:12px}
+.f-col a{display:block;font-size:.85rem;color:var(--muted);padding:3px 0;transition:color .2s}
+.f-col a:hover{color:var(--lime)}
+.f-bottom{display:flex;justify-content:space-between;align-items:center;padding-top:20px;border-top:1px solid var(--border);font-size:.75rem;color:#27272a}
+.f-socials{display:flex;gap:10px}
+.f-socials a{width:32px;height:32px;border-radius:8px;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;color:#3f3f46;font-size:.82rem;transition:all .2s}
+.f-socials a:hover{border-color:var(--lime);color:var(--lime)}
+@media(max-width:768px){.f-grid{grid-template-columns:1fr 1fr}.f-bottom{flex-direction:column;gap:12px;text-align:center}}
+
+/*═══════════ ANIMATIONS ═══════════*/
+[data-a]{opacity:0;transform:translateY(24px);transition:opacity .6s ease-out,transform .6s ease-out}
+[data-a].v{opacity:1;transform:translateY(0)}
+[data-a][data-d="1"]{transition-delay:.1s}[data-a][data-d="2"]{transition-delay:.2s}[data-a][data-d="3"]{transition-delay:.3s}[data-a][data-d="4"]{transition-delay:.4s}
+</style>
+</head>
+<body>
+
+<!-- ═══════ NAV ═══════ -->
+<nav id="nav">
+  <div class="container">
+    <div class="logo">FYIXT</div>
+    <div class="nav-mid" id="navMid">
+      <a href="#features">Features</a>
+      <a href="#platforms">Platforms</a>
+      <a href="#pricing">Pricing</a>
+      <a href="#faq">FAQ</a>
+    </div>
+    <div class="nav-right">
+      <a href="#cta" class="btn btn-dark btn-sm" style="padding:8px 18px;font-size:.82rem;border-radius:8px">Log in</a>
+      <a href="#cta" class="btn btn-lime btn-sm" style="padding:8px 18px;font-size:.82rem;border-radius:8px">Start Free →</a>
+    </div>
+    <button class="hamburger" id="burger" aria-label="Menu"><span></span><span></span><span></span></button>
+  </div>
+</nav>
+
+<!-- ═══════ HERO ═══════ -->
+<section class="hero">
+  <div class="hero-glow"></div>
+  <div class="container">
+    <div class="hero-layout">
+      <div>
+        <div class="hero-tag" data-a><span class="dot"></span> Introducing AI-powered workflows</div>
+        <h1 data-a data-d="1">Post once.<br>Publish <span class="hl">everywhere.</span><br>Grow on autopilot.</h1>
+        <p class="hero-sub" data-a data-d="2">FYIXT helps creators and brands <strong>automate crossposting</strong>, create content with AI, and <strong>grow 10× faster</strong> — no team, no $5K/mo tools.</p>
+        <div class="hero-ctas" data-a data-d="3">
+          <a href="#cta" class="btn btn-lime btn-lg">Start your free trial →</a>
+          <a href="#cta" class="btn btn-dark btn-lg">Book a demo</a>
+        </div>
+        <div class="hero-proof" data-a data-d="4">
+          <div class="faces">
+            <div class="face" style="background:var(--lime)">JR</div>
+            <div class="face" style="background:var(--cyan)">MK</div>
+            <div class="face" style="background:var(--violet)">AT</div>
+            <div class="face" style="background:var(--rose)">SL</div>
+            <div class="face" style="background:var(--amber)">DK</div>
+          </div>
+          <span>Trusted by <strong style="color:var(--text)">creators & agencies</strong> worldwide</span>
+        </div>
+      </div>
+
+      <div class="mockup-wrap" data-a data-d="3">
+        <div class="mockup-glow"></div>
+        <div class="mockup">
+          <div class="m-bar"><div class="m-dot r"></div><div class="m-dot y"></div><div class="m-dot g"></div></div>
+          <div class="m-body">
+            <div class="m-side">
+              <div class="m-side-item active">📊 Dashboard</div>
+              <div class="m-side-item">📅 Scheduler</div>
+              <div class="m-side-item">🤖 AI Studio</div>
+              <div class="m-side-item">🎬 Videos</div>
+              <div class="m-side-item">🔗 Links</div>
+              <div class="m-side-item">📈 Analytics</div>
+              <div class="m-side-item">⚙️ Settings</div>
+            </div>
+            <div class="m-main">
+              <div class="m-row">
+                <div class="m-card">
+                  <div class="mc-label">Total Reach</div>
+                  <div class="mc-val" style="color:var(--lime)">2.4M</div>
+                  <div class="mc-delta up">↑ 34% vs last month</div>
+                  <div class="m-bar-chart"><div class="m-bar-fill" style="--w:82%;background:linear-gradient(90deg,var(--lime),var(--cyan))"></div></div>
+                </div>
+                <div class="m-card">
+                  <div class="mc-label">Engagement</div>
+                  <div class="mc-val" style="color:var(--cyan)">18.6%</div>
+                  <div class="mc-delta up">↑ 12% this week</div>
+                  <div class="m-bar-chart"><div class="m-bar-fill" style="--w:64%;background:linear-gradient(90deg,var(--cyan),var(--violet))"></div></div>
+                </div>
+              </div>
+              <div class="m-card">
+                <div style="display:flex;justify-content:space-between;align-items:center">
+                  <div><div class="mc-label">Scheduled</div><div class="mc-val" style="color:var(--violet);font-size:1.1rem">142 posts</div></div>
+                  <div style="font-size:.7rem;color:var(--muted)">across 6 platforms</div>
+                </div>
+                <div class="m-bar-chart"><div class="m-bar-fill" style="--w:91%;background:linear-gradient(90deg,var(--violet),var(--rose))"></div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ TICKER ═══════ -->
+<div class="ticker">
+  <div class="ticker-track">
+    <span>1,000+ Growing Brands</span><span>100K+ Posts Published</span><span>10+ Platforms Supported</span><span>7.5× Avg. Engagement Boost</span><span>AI-Powered Content</span><span>Faceless Video Engine</span><span>50+ Languages</span><span>BYOK Support</span>
+    <span>1,000+ Growing Brands</span><span>100K+ Posts Published</span><span>10+ Platforms Supported</span><span>7.5× Avg. Engagement Boost</span><span>AI-Powered Content</span><span>Faceless Video Engine</span><span>50+ Languages</span><span>BYOK Support</span>
+  </div>
+</div>
+
+<!-- ═══════ MEET FYIXT ═══════ -->
+<section class="meet" id="features">
+  <div class="container">
+    <div class="meet-tag" data-a>YOUR ALL-IN-ONE CONTENT ENGINE</div>
+    <h2 data-a>Meet FYIXT — stop juggling 8 tools.</h2>
+    <p data-a data-d="1">We handle the minutiae of social media so you can focus on creating content that matters.</p>
+
+    <div class="meet-grid">
+      <div class="meet-card" data-a>
+        <div class="mc-icon i1">🔌</div>
+        <h3>Connect & Post Once</h3>
+        <p>Link all your social platforms. Post once — FYIXT publishes everywhere automatically. No tab switching, no manual uploads.</p>
+        <div class="mc-stat">100K+ <small>Posts Published</small></div>
+      </div>
+      <div class="meet-card" data-a data-d="1">
+        <div class="mc-icon i2">✨</div>
+        <h3>Create with AI</h3>
+        <p>Generate captions, hashtags, images, and videos in seconds. Our AI is trained on what actually performs — not generic slop.</p>
+        <div class="mc-stat">10× <small>Faster Content Creation</small></div>
+      </div>
+      <div class="meet-card" data-a data-d="2">
+        <div class="mc-icon i3">📊</div>
+        <h3>Automate & Analyze</h3>
+        <p>Track performance, engagement, and growth through one unified dashboard. AI tells you what's working so you can double down.</p>
+        <div class="mc-stat">1,000+ <small>Growing Brands</small></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ BEFORE/AFTER ═══════ -->
+<section class="workflow">
+  <div class="container">
+    <div class="wf-header" data-a>
+      <h2>From chaos to autopilot</h2>
+      <p style="color:var(--muted);max-width:440px;margin:0 auto">See what changes when you stop doing everything manually.</p>
+    </div>
+    <div class="wf-grid" data-a data-d="1">
+      <div class="wf-card before">
+        <div class="wf-label">✕ Without FYIXT</div>
+        <ul>
+          <li>Logging into 6 different platforms every day</li>
+          <li>Copy-pasting captions across tabs</li>
+          <li>Manually resizing images per platform</li>
+          <li>Guessing when to post</li>
+          <li>No idea what's actually working</li>
+          <li>Paying $200+/mo for 4-5 separate tools</li>
+        </ul>
+      </div>
+      <div class="wf-arrow">→</div>
+      <div class="wf-card after">
+        <div class="wf-label">✓ With FYIXT</div>
+        <ul>
+          <li>One dashboard for every platform</li>
+          <li>AI writes & adapts content for each channel</li>
+          <li>Auto-format for Stories, Reels, Posts, Shorts</li>
+          <li>AI picks optimal posting times</li>
+          <li>Unified analytics show what works</li>
+          <li>One tool. Starting at $0/mo.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SHOWCASE: AI CONTENT ═══════ -->
+<section class="showcase">
+  <div class="container">
+    <div class="sc-grid">
+      <div class="sc-text" data-a>
+        <div class="sc-tag t-violet">AI CONTENT STUDIO</div>
+        <h3>AI that actually<br>sounds like <em>you</em></h3>
+        <p>Not generic AI slop. Give it a topic and your voice — get scroll-stopping content back in seconds. Trained on what performs.</p>
+        <ul>
+          <li>Captions, hashtags, hooks &amp; scripts in one click</li>
+          <li>AI image generation for thumbnails &amp; posts</li>
+          <li>50+ languages — go global instantly</li>
+          <li>BYOK — use your own OpenAI, Gemini, or Claude keys</li>
+        </ul>
+        <a href="#cta" class="btn btn-lime">Try AI Studio Free →</a>
+      </div>
+      <div class="sc-visual" data-a data-d="2">
+        <div class="sv-inner">
+          <div class="ai-prompt-box">
+            <div class="pl" style="color:var(--violet)">✨ Your Prompt</div>
+            "Write a punchy Instagram caption about morning productivity for entrepreneurs. Motivational, no fluff."
+          </div>
+          <div class="ai-result-box">
+            <div class="rl"><span style="animation:blink 1s steps(2) infinite;color:var(--lime)">●</span> AI Generated — 2.3s</div>
+            <div class="rt">
+              5 AM. No notifications. No noise.<br><br>
+              Just you, your coffee, and the unfair advantage 90% of people sleep through.<br><br>
+              The best CEOs don't have more time — they protect their mornings like it's worth millions. Because it is.<br><br>
+              What's YOUR power hour? 👇<br><br>
+              <span style="color:var(--cyan)">#MorningRoutine #Productivity #CEO #GrindDontStop</span>
+              <span class="cursor-blink"></span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SHOWCASE: SCHEDULING ═══════ -->
+<section class="showcase">
+  <div class="container">
+    <div class="sc-grid rev">
+      <div class="sc-text" data-a>
+        <div class="sc-tag t-lime">SMART SCHEDULING</div>
+        <h3>Schedule everything.<br><em>Consistency wins.</em></h3>
+        <p>Bulk-schedule a month of content in minutes. AI picks the perfect time based on when YOUR audience is actually online.</p>
+        <ul>
+          <li>Drag-and-drop visual calendar</li>
+          <li>AI-optimized posting times per platform</li>
+          <li>Bulk upload weeks of content in one go</li>
+          <li>First post publishes instantly, rest auto-queued</li>
+        </ul>
+        <a href="#cta" class="btn btn-lime">Start Scheduling →</a>
+      </div>
+      <div class="sc-visual" data-a data-d="2">
+        <div class="sv-inner">
+          <div style="font-size:.72rem;font-weight:600;color:var(--muted);text-transform:uppercase;letter-spacing:.05em;margin-bottom:10px">📅 March 2026</div>
+          <div class="cal-grid">
+            <div class="d">M</div><div class="d">T</div><div class="d">W</div><div class="d">T</div><div class="d">F</div><div class="d">S</div><div class="d">S</div>
+            <div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d on">1</div>
+            <div class="d on">2</div><div class="d">3</div><div class="d on">4</div><div class="d on">5</div><div class="d hot">6</div><div class="d on">7</div><div class="d">8</div>
+            <div class="d on">9</div><div class="d on">10</div><div class="d">11</div><div class="d on">12</div><div class="d on">13</div><div class="d hot">14</div><div class="d">15</div>
+            <div class="d on">16</div><div class="d">17</div><div class="d on">18</div><div class="d on">19</div><div class="d">20</div><div class="d on">21</div><div class="d on">22</div>
+            <div class="d hot">23</div><div class="d on">24</div><div class="d on">25</div><div class="d">26</div><div class="d on">27</div><div class="d on">28</div><div class="d">29</div>
+            <div class="d on">30</div><div class="d on">31</div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div><div class="d"></div>
+          </div>
+          <div style="display:flex;gap:14px;font-size:.68rem;color:var(--muted);margin-bottom:14px">
+            <span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:3px;background:rgba(185,255,102,.25)"></span>Scheduled</span>
+            <span style="display:flex;align-items:center;gap:5px"><span style="width:8px;height:8px;border-radius:3px;background:rgba(251,113,133,.25)"></span>Peak Day</span>
+          </div>
+          <div style="background:rgba(255,255,255,.02);border:1px solid var(--border);border-radius:8px;padding:12px">
+            <div style="display:flex;align-items:center;gap:8px;margin-bottom:6px">
+              <span style="font-size:1rem">📸</span>
+              <div><div style="font-size:.78rem;font-weight:600">Instagram · Reel</div><div style="font-size:.68rem;color:var(--muted)">Mar 6, 7:30 PM (peak)</div></div>
+            </div>
+            <div style="font-size:.78rem;color:var(--muted)">"5 productivity hacks..." — <span style="color:var(--lime);font-weight:600">AI score: 92/100</span></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SHOWCASE: VIDEO ENGINE ═══════ -->
+<section class="showcase">
+  <div class="container">
+    <div class="sc-grid">
+      <div class="sc-text" data-a>
+        <div class="sc-tag t-rose">FACELESS VIDEO ENGINE</div>
+        <h3>Go viral without<br>showing your <em>face</em></h3>
+        <p>Build faceless channels on YouTube, TikTok &amp; Reels. AI generates scripts, voiceover, captions — you just pick a topic.</p>
+        <ul>
+          <li>AI voiceover in natural-sounding voices</li>
+          <li>Auto-generated subtitles &amp; captions</li>
+          <li>Trending templates for Reels, Shorts, TikToks</li>
+          <li>Topic → finished video in under 3 minutes</li>
+        </ul>
+        <a href="#cta" class="btn btn-lime">Create Your First Video →</a>
+      </div>
+      <div class="sc-visual" data-a data-d="2">
+        <div class="sv-inner" style="background:linear-gradient(135deg,#0f0018,#0a0010);padding:24px">
+          <div style="display:flex;align-items:center;gap:10px;margin-bottom:18px">
+            <div style="width:42px;height:42px;border-radius:10px;background:rgba(251,113,133,.12);display:flex;align-items:center;justify-content:center;font-size:1.2rem">🎬</div>
+            <div><div style="font-size:.85rem;font-weight:600;color:#e4e4e7">AI Video Generator</div><div style="font-size:.68rem;color:var(--muted)">"Top 5 AI Tools for 2026"</div></div>
+          </div>
+          <div class="vid-steps">
+            <div class="vid-step"><span class="check">✓</span><span style="color:#a1a1aa">Script generated (487 words)</span></div>
+            <div class="vid-step"><span class="check">✓</span><span style="color:#a1a1aa">AI voiceover complete (1:42)</span></div>
+            <div class="vid-step"><span class="check">✓</span><span style="color:#a1a1aa">Subtitles burned in</span></div>
+            <div class="vid-step"><span class="spin">●</span><span style="color:#e4e4e7;font-weight:500">Rendering final video… 87%</span></div>
+          </div>
+          <div style="height:5px;border-radius:3px;background:rgba(255,255,255,.05);margin-top:14px;overflow:hidden">
+            <div style="width:87%;height:100%;border-radius:3px;background:linear-gradient(90deg,var(--rose),var(--violet))"></div>
+          </div>
+          <div class="vid-meta">
+            <div class="vm"><div class="vm-label">Duration</div><div class="vm-val">1:42</div></div>
+            <div class="vm"><div class="vm-label">Format</div><div class="vm-val">9:16</div></div>
+            <div class="vm"><div class="vm-label">AI Score</div><div class="vm-val" style="color:var(--lime)">96</div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ SHOWCASE: ANALYTICS ═══════ -->
+<section class="showcase">
+  <div class="container">
+    <div class="sc-grid rev">
+      <div class="sc-text" data-a>
+        <div class="sc-tag t-cyan">UNIFIED ANALYTICS</div>
+        <h3>Know what's working.<br><em>Double down.</em></h3>
+        <p>All your platforms, one analytics view. Stop logging into 6 apps to see your numbers.</p>
+        <ul>
+          <li>Reach, engagement, follower growth — unified</li>
+          <li>Click tracking on every short link</li>
+          <li>CSV export for client reports</li>
+          <li>AI recommendations: "post more Reels on Tuesdays"</li>
+        </ul>
+        <a href="#cta" class="btn btn-lime">See Your Analytics →</a>
+      </div>
+      <div class="sc-visual" data-a data-d="2">
+        <div class="sv-inner">
+          <div class="analytics-mini">
+            <div class="am"><div class="am-num" style="color:var(--lime)">847K</div><div class="am-label">Impressions</div></div>
+            <div class="am"><div class="am-num" style="color:var(--cyan)">12.4%</div><div class="am-label">Engagement</div></div>
+            <div class="am"><div class="am-num" style="color:var(--violet)">+2.1K</div><div class="am-label">Followers</div></div>
+          </div>
+          <div class="bar-chart">
+            <div class="b" style="height:30%;background:rgba(185,255,102,.12)"></div>
+            <div class="b" style="height:45%;background:rgba(185,255,102,.18)"></div>
+            <div class="b" style="height:38%;background:rgba(185,255,102,.22)"></div>
+            <div class="b" style="height:55%;background:rgba(185,255,102,.28)"></div>
+            <div class="b" style="height:48%;background:rgba(185,255,102,.32)"></div>
+            <div class="b" style="height:65%;background:rgba(185,255,102,.38)"></div>
+            <div class="b" style="height:58%;background:rgba(185,255,102,.44)"></div>
+            <div class="b" style="height:72%;background:rgba(185,255,102,.5)"></div>
+            <div class="b" style="height:80%;background:rgba(185,255,102,.58)"></div>
+            <div class="b" style="height:74%;background:rgba(185,255,102,.64)"></div>
+            <div class="b" style="height:88%;background:rgba(185,255,102,.72)"></div>
+            <div class="b" style="height:100%;background:var(--lime)"></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;font-size:.6rem;color:#3f3f46;margin-top:4px">
+            <span>Jan</span><span>Feb</span><span>Mar</span><span>Apr</span><span>May</span><span>Jun</span><span>Jul</span><span>Aug</span><span>Sep</span><span>Oct</span><span>Nov</span><span>Dec</span>
+          </div>
+          <div style="margin-top:14px;display:flex;flex-direction:column;gap:8px">
+            <div style="display:flex;justify-content:space-between;font-size:.78rem"><span>📸 Instagram</span><span style="color:var(--lime);font-weight:600">42%</span></div>
+            <div style="height:3px;border-radius:2px;background:rgba(255,255,255,.03)"><div style="width:42%;height:100%;border-radius:2px;background:linear-gradient(90deg,#E1306C,#F77737)"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:.78rem"><span>▶️ YouTube</span><span style="color:var(--cyan);font-weight:600">28%</span></div>
+            <div style="height:3px;border-radius:2px;background:rgba(255,255,255,.03)"><div style="width:28%;height:100%;border-radius:2px;background:#f00"></div></div>
+            <div style="display:flex;justify-content:space-between;font-size:.78rem"><span>🎵 TikTok</span><span style="color:var(--violet);font-weight:600">30%</span></div>
+            <div style="height:3px;border-radius:2px;background:rgba(255,255,255,.03)"><div style="width:30%;height:100%;border-radius:2px;background:linear-gradient(90deg,#25F4EE,#FE2C55)"></div></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ PLATFORMS ═══════ -->
+<section class="platforms" id="platforms">
+  <div class="container">
+    <h2 data-a>10+ Platforms, <span style="color:var(--lime)">One Dashboard</span></h2>
+    <p data-a data-d="1">Connect all your accounts. Manage from a single interface.</p>
+    <div class="plat-row" data-a data-d="2">
+      <div class="plat-chip"><span class="pi">📸</span>Instagram</div>
+      <div class="plat-chip"><span class="pi">💬</span>Threads</div>
+      <div class="plat-chip"><span class="pi">▶️</span>YouTube</div>
+      <div class="plat-chip"><span class="pi">🎵</span>TikTok</div>
+      <div class="plat-chip"><span class="pi">📘</span>Facebook</div>
+      <div class="plat-chip"><span class="pi">💼</span>LinkedIn</div>
+      <div class="plat-chip"><span class="pi">📌</span>Pinterest</div>
+      <div class="plat-chip"><span class="pi">🦋</span>Bluesky</div>
+      <div class="plat-chip"><span class="pi">𝕏</span>X / Twitter</div>
+      <div class="plat-chip"><span class="pi">👻</span>Snapchat</div>
+    </div>
+    <div class="plat-sub" data-a data-d="3">We handle the minutiae of social media publishing so you can focus on creating content that matters.</div>
+  </div>
+</section>
+
+<!-- ═══════ RESULTS ═══════ -->
+<section class="results">
+  <div class="container">
+    <div style="text-align:center" data-a>
+      <h2 style="font-family:'Space Grotesk',sans-serif;font-size:clamp(1.8rem,4vw,2.8rem);font-weight:700;letter-spacing:-.03em;color:#f4f4f5">Built for creators who are <span style="color:var(--lime)">serious</span> about growth</h2>
+    </div>
+    <div class="results-grid">
+      <div class="r-card" data-a>
+        <div class="r-num">8-in-1</div>
+        <div class="r-label">Tools replaced<br>by one FYIXT</div>
+      </div>
+      <div class="r-card" data-a data-d="1">
+        <div class="r-num">7.5×</div>
+        <div class="r-label">Avg. engagement<br>boost</div>
+      </div>
+      <div class="r-card" data-a data-d="2">
+        <div class="r-num">10+</div>
+        <div class="r-label">Platforms<br>connected</div>
+      </div>
+      <div class="r-card" data-a data-d="3">
+        <div class="r-num">$0</div>
+        <div class="r-label">To start<br>free forever</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ TESTIMONIALS ═══════ -->
+<section class="reviews" id="testimonials">
+  <div class="container">
+    <div class="rev-header" data-a>
+      <h2>What our users say</h2>
+      <p>Real results from real creators. See how FYIXT saves time and drives growth.</p>
+    </div>
+    <div class="rev-grid">
+      <div class="rev-card" data-a>
+        <div class="rc-stars">★★★★★</div>
+        <div class="rc-text">"I went from 3 hours/day on content to 20 minutes. The AI writes better hooks than I do. Engagement literally doubled in month one."</div>
+        <div class="rc-author">
+          <div class="rc-av" style="background:var(--lime)">JR</div>
+          <div><div class="rc-name">Jessica Rivera</div><div class="rc-role">Content Creator · 250K followers</div></div>
+        </div>
+      </div>
+      <div class="rev-card" data-a data-d="1">
+        <div class="rc-stars">★★★★★</div>
+        <div class="rc-text">"We manage 40+ client accounts. Before FYIXT: 6 tabs, 3 tools, constant copy-pasting. Now it's one dashboard. Saved $2K/mo in tools alone."</div>
+        <div class="rc-author">
+          <div class="rc-av" style="background:var(--cyan)">MK</div>
+          <div><div class="rc-name">Marcus Kim</div><div class="rc-role">Agency Owner · Digital Hive</div></div>
+        </div>
+      </div>
+      <div class="rev-card" data-a data-d="2">
+        <div class="rc-stars">★★★★★</div>
+        <div class="rc-text">"The faceless video engine is INSANE. Built a TikTok channel from 0 to 100K in 3 months — never recorded a single video. Just topic in, video out."</div>
+        <div class="rc-author">
+          <div class="rc-av" style="background:var(--violet)">AT</div>
+          <div><div class="rc-name">Aisha Thompson</div><div class="rc-role">TikTok Creator · Lifestyle Niche</div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ PRICING ═══════ -->
+<section class="pricing" id="pricing">
+  <div class="container">
+    <div class="pr-header" data-a>
+      <h2>Simple, transparent pricing</h2>
+      <p>Start free, upgrade as you grow. No hidden fees, cancel anytime.</p>
+    </div>
+    <div style="text-align:center" data-a data-d="1">
+      <div class="pr-toggle-wrap">
+        <button class="active" id="togMo" onclick="setPricing('mo')">Monthly</button>
+        <button id="togYr" onclick="setPricing('yr')">Yearly <span class="pr-save">Save 20%</span></button>
+      </div>
+    </div>
+    <div class="pr-grid" style="margin-top:48px">
+      <div class="pr-card" data-a>
+        <h3>Starter</h3>
+        <div class="pr-desc">For solo creators getting started</div>
+        <div class="pr-price" data-mo="$0" data-yr="$0">$0 <small>/forever</small></div>
+        <div class="pr-period">No credit card required</div>
+        <ul>
+          <li>3 social accounts</li>
+          <li>30 scheduled posts/month</li>
+          <li>AI captions &amp; hashtags</li>
+          <li>Basic analytics</li>
+          <li>Link tracking</li>
+        </ul>
+        <a href="#cta" class="btn btn-outline">Start Free →</a>
+      </div>
+      <div class="pr-card pop" data-a data-d="1">
+        <div class="pop-tag">⚡ MOST POPULAR</div>
+        <h3>Pro</h3>
+        <div class="pr-desc">For creators &amp; brands who mean business</div>
+        <div class="pr-price" data-mo="$19" data-yr="$15">$19 <small>/month</small></div>
+        <div class="pr-period prp" data-mo="Billed monthly" data-yr="Billed $180/year">Billed monthly</div>
+        <ul>
+          <li>Unlimited accounts</li>
+          <li>Unlimited scheduling</li>
+          <li>Full AI Studio + image gen</li>
+          <li>Faceless video engine</li>
+          <li>Advanced analytics</li>
+          <li>Priority support</li>
+        </ul>
+        <a href="#cta" class="btn btn-lime">Get Pro Access →</a>
+      </div>
+      <div class="pr-card" data-a data-d="2">
+        <h3>Agency</h3>
+        <div class="pr-desc">For teams managing multiple clients</div>
+        <div class="pr-price" data-mo="$49" data-yr="$39">$49 <small>/month</small></div>
+        <div class="pr-period prp" data-mo="Billed monthly" data-yr="Billed $468/year">Billed monthly</div>
+        <ul>
+          <li>Everything in Pro</li>
+          <li>Multi-client workspaces</li>
+          <li>White-label reports</li>
+          <li>Team collaboration</li>
+          <li>API access</li>
+          <li>Dedicated onboarding</li>
+        </ul>
+        <a href="#cta" class="btn btn-outline">Contact Sales →</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ FAQ ═══════ -->
+<section class="faq" id="faq">
+  <div class="container">
+    <div class="faq-header" data-a>
+      <h2>Frequently Asked Questions</h2>
+      <p style="color:var(--muted);max-width:440px;margin:0 auto">Everything you need to know about FYIXT.</p>
+    </div>
+    <div class="faq-list">
+      <details class="faq-item" data-a>
+        <summary data-num="01">How is FYIXT different from Buffer or Hootsuite?</summary>
+        <div class="faq-body">Those tools just schedule posts. FYIXT is an all-in-one command center — it <strong>creates</strong> content with AI (captions, images, videos), schedules it, tracks analytics, generates faceless videos, manages short links, and supports BYOK (bring your own API keys). It replaces 8+ separate tools in one dashboard.</div>
+      </details>
+      <details class="faq-item" data-a>
+        <summary data-num="02">What exactly are workflows?</summary>
+        <div class="faq-body">Workflows let you set up automated sequences that cross-post, transform, and schedule your content across platforms. AI handles resizing, platform-specific captions, and optimal timing — so you create once and FYIXT does the rest.</div>
+      </details>
+      <details class="faq-item" data-a>
+        <summary data-num="03">Which social media platforms are supported?</summary>
+        <div class="faq-body">Instagram, Threads, YouTube, TikTok, Facebook, LinkedIn, Pinterest, Bluesky, X (Twitter), Snapchat, and more. We add new platforms regularly. Connect once, post everywhere.</div>
+      </details>
+      <details class="faq-item" data-a>
+        <summary data-num="04">Does scheduling posts hurt my views?</summary>
+        <div class="faq-body">No. All major platforms are interest-based now, not follower-based. What matters is quality content, not whether you clicked "post" manually. Many creators with millions of followers schedule 100% of their posts. Our AI even picks the optimal time for max reach.</div>
+      </details>
+      <details class="faq-item" data-a>
+        <summary data-num="05">What is "Bring Your Own Keys" (BYOK)?</summary>
+        <div class="faq-body">You can plug in your own API keys for OpenAI, Gemini, Claude, ElevenLabs, Stability AI, and 6 more services. Full control over costs and AI model choice. No keys? No problem — FYIXT includes built-in AI out of the box.</div>
+      </details>
+      <details class="faq-item" data-a>
+        <summary data-num="06">Can I manage multiple client accounts?</summary>
+        <div class="faq-body">Absolutely. The Agency plan supports multi-client workspaces — manage separate projects, client accounts, or brands from one dashboard. Switch between workspaces in a click.</div>
+      </details>
+      <details class="faq-item" data-a>
+        <summary data-num="07">Who is FYIXT NOT for?</summary>
+        <div class="faq-body">FYIXT is NOT for automated spam or low-effort AI dumps. It's built for creators, brands, and agencies who care about quality and want to grow efficiently. If you're looking for a "post 1000 AI articles overnight" bot, this isn't it. If you want to build a real brand 10× faster — welcome home.</div>
+      </details>
+      <details class="faq-item" data-a>
+        <summary data-num="08">How secure is my data?</summary>
+        <div class="faq-body">Security is a top priority. We use enterprise-grade encryption, token-based authentication, and strict data protection. Your API keys are encrypted at rest. We do NOT sell your data — ever.</div>
+      </details>
+    </div>
+    <div style="text-align:center;margin-top:36px;font-size:.88rem;color:var(--muted)" data-a>
+      Still have questions? <a href="mailto:support@fyixt.com" style="color:var(--lime);font-weight:600">Contact Support →</a>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ FINAL CTA ═══════ -->
+<section class="final-cta" id="cta">
+  <div class="container">
+    <div class="cta-box" data-a>
+      <h2>Ready to supercharge<br>your social media?</h2>
+      <p>Join thousands of creators already growing faster with FYIXT.<br>Free to start. No credit card required.</p>
+      <form class="cta-form" onsubmit="handleSubmit(event)">
+        <input type="email" id="emailInput" placeholder="you@email.com" required/>
+        <button type="submit" class="btn btn-lime btn-lg">Get Early Access →</button>
+      </form>
+      <div id="formMsg"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════ FOOTER ═══════ -->
+<footer>
+  <div class="container">
+    <div class="f-grid">
+      <div class="f-brand">
+        <div class="logo">FYIXT</div>
+        <p>AI-powered social media management for creators, brands, and agencies who refuse to settle.</p>
+      </div>
+      <div class="f-col">
+        <h4>Product</h4>
+        <a href="#features">Features</a>
+        <a href="#pricing">Pricing</a>
+        <a href="#faq">FAQ</a>
+        <a href="#">Changelog</a>
+      </div>
+      <div class="f-col">
+        <h4>Resources</h4>
+        <a href="#">Documentation</a>
+        <a href="#">Blog</a>
+        <a href="#">API Reference</a>
+        <a href="#">Status</a>
+      </div>
+      <div class="f-col">
+        <h4>Company</h4>
+        <a href="#">About</a>
+        <a href="mailto:support@fyixt.com">Contact</a>
+        <a href="#">Privacy Policy</a>
+        <a href="#">Terms of Service</a>
+      </div>
+    </div>
+    <div class="f-bottom">
+      <span>© 2026 FYIXT. All rights reserved.</span>
+      <div class="f-socials">
+        <a href="#" aria-label="X">𝕏</a>
+        <a href="#" aria-label="Instagram">ig</a>
+        <a href="#" aria-label="YouTube">▶</a>
+        <a href="#" aria-label="TikTok">♪</a>
+        <a href="#" aria-label="LinkedIn">in</a>
+      </div>
+    </div>
+  </div>
+</footer>
+
+<script>
+/* NAV SCROLL */
+const nav=document.getElementById('nav');
+window.addEventListener('scroll',()=>nav.classList.toggle('scrolled',scrollY>50));
+document.getElementById('burger').onclick=()=>document.getElementById('navMid').classList.toggle('open');
+
+/* REVEAL */
+const io=new IntersectionObserver(es=>{es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('v');io.unobserve(e.target)}})},{threshold:.08,rootMargin:'0px 0px -30px 0px'});
+document.querySelectorAll('[data-a]').forEach(el=>io.observe(el));
+
+/* PRICING TOGGLE */
+function setPricing(mode){
+  document.getElementById('togMo').classList.toggle('active',mode==='mo');
+  document.getElementById('togYr').classList.toggle('active',mode==='yr');
+  document.querySelectorAll('.pr-price[data-mo]').forEach(el=>{
+    const val=el.dataset[mode],suffix=mode==='yr'&&val!=='$0'?'/month':'';
+    const label=val==='$0'?'/forever':suffix?'/month':'';
+    el.innerHTML=val+' <small>'+label+'</small>';
+  });
+  document.querySelectorAll('.prp').forEach(el=>{el.textContent=el.dataset[mode]});
+}
+
+/* FORM */
+function handleSubmit(e){
+  e.preventDefault();
+  const em=document.getElementById('emailInput'),msg=document.getElementById('formMsg');
+  msg.style.display='block';
+  msg.textContent="🎉 You're in! We'll reach out at "+em.value;
+  em.value='';
+  setTimeout(()=>{msg.style.display='none'},5000);
+}
+
+/* SMOOTH SCROLL */
+document.querySelectorAll('a[href^="#"]').forEach(a=>a.addEventListener('click',e=>{
+  const t=document.querySelector(a.getAttribute('href'));
+  if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'});document.getElementById('navMid').classList.remove('open')}
+}));
+</script>
+</body>
+</html>

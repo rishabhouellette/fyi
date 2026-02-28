@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { useTheme } from '../context/ThemeContext';
 import { 
   Grid3x3, 
   Play, 
@@ -17,6 +18,7 @@ import {
 } from 'lucide-react';
 
 const ClipGallery = () => {
+  const { isDark } = useTheme();
   const [clips, setClips] = useState([
     { id: 1, title: 'How I Made $10K in 30 Days', duration: '0:59', views: '234K', likes: '12.4K', comments: '847', score: 94, thumbnail: '🎯', platform: 'TikTok', status: 'viral' },
     { id: 2, title: 'This AI Tool Changed Everything', duration: '0:45', views: '892K', likes: '45.2K', comments: '2.3K', score: 98, thumbnail: '🤖', platform: 'Instagram', status: 'viral' },
@@ -65,7 +67,9 @@ const ClipGallery = () => {
         transition={{ delay: index * 0.05 }}
         whileHover={{ scale: 1.05, y: -5 }}
         onClick={() => setSelectedClip(clip)}
-        className="card-cyber p-0 overflow-hidden cursor-pointer group"
+        className={`p-0 overflow-hidden cursor-pointer group rounded-xl border transition-colors ${
+          isDark ? 'bg-gray-900/80 border-cyan-500/20' : 'bg-white border-gray-200 shadow-lg'
+        }`}
       >
         {/* Thumbnail */}
         <div className="relative h-48 bg-gradient-to-br from-cyber-primary/20 to-cyber-purple/20 flex items-center justify-center overflow-hidden">
@@ -102,9 +106,9 @@ const ClipGallery = () => {
 
         {/* Info */}
         <div className="p-4">
-          <h3 className="font-semibold mb-2 line-clamp-2">{clip.title}</h3>
+          <h3 className={`font-semibold mb-2 line-clamp-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{clip.title}</h3>
           
-          <div className="flex items-center gap-4 text-sm text-gray-400 mb-3">
+          <div className={`flex items-center gap-4 text-sm mb-3 ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
             <span className="flex items-center gap-1">
               <Eye className="w-4 h-4" />
               {clip.views}
@@ -120,14 +124,14 @@ const ClipGallery = () => {
           </div>
 
           <div className="flex items-center gap-2">
-            <span className="px-2 py-1 rounded bg-white/5 text-xs font-semibold">
+            <span className={`px-2 py-1 rounded text-xs font-semibold ${isDark ? 'bg-white/5' : 'bg-gray-100'}`}>
               {clip.platform}
             </span>
             <div className="flex-1" />
-            <button className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+            <button className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}>
               <Download className="w-4 h-4" />
             </button>
-            <button className="p-2 rounded-lg hover:bg-white/10 transition-colors">
+            <button className={`p-2 rounded-lg transition-colors ${isDark ? 'hover:bg-white/10' : 'hover:bg-gray-100'}`}>
               <Share2 className="w-4 h-4" />
             </button>
           </div>
@@ -145,8 +149,8 @@ const ClipGallery = () => {
         className="flex items-center justify-between"
       >
         <div>
-          <h1 className="text-4xl font-black mb-2 gradient-text">Clip Gallery</h1>
-          <p className="text-gray-400">{filteredClips.length} viral clips ready to dominate</p>
+          <h1 className={`text-4xl font-black mb-2 ${isDark ? 'gradient-text' : 'text-gray-900'}`}>Clip Gallery</h1>
+          <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>{filteredClips.length} viral clips ready to dominate</p>
         </div>
 
         <button className="btn-cyber px-6 py-3 flex items-center gap-2">
@@ -159,28 +163,28 @@ const ClipGallery = () => {
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="card-cyber p-6"
+        className={`p-6 rounded-xl border transition-colors ${isDark ? 'bg-gray-900/80 border-cyan-500/20' : 'bg-white border-gray-200 shadow-lg'}`}
       >
         <div className="flex flex-wrap items-center gap-4">
           {/* Search */}
           <div className="flex-1 min-w-[200px] relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
+            <Search className={`absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
             <input
               type="text"
               placeholder="Search clips..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="input-cyber w-full pl-10"
+              className={`w-full pl-10 px-4 py-2 rounded-lg border transition-colors ${isDark ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'}`}
             />
           </div>
 
           {/* Platform Filter */}
           <div className="flex items-center gap-2">
-            <Filter className="w-5 h-5 text-gray-400" />
+            <Filter className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
             <select
               value={filter}
               onChange={(e) => setFilter(e.target.value)}
-              className="input-cyber"
+              className={`px-4 py-2 rounded-lg border transition-colors ${isDark ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'}`}
             >
               <option value="all">All Platforms</option>
               <option value="TikTok">TikTok</option>
@@ -193,7 +197,7 @@ const ClipGallery = () => {
           <select
             value={sortBy}
             onChange={(e) => setSortBy(e.target.value)}
-            className="input-cyber"
+            className={`px-4 py-2 rounded-lg border transition-colors ${isDark ? 'bg-gray-800 border-gray-700 text-white' : 'bg-gray-50 border-gray-300 text-gray-900'}`}
           >
             <option value="recent">Most Recent</option>
             <option value="views">Most Views</option>
@@ -205,8 +209,8 @@ const ClipGallery = () => {
       {/* Stats Bar */}
       <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
         {[
-          { label: 'Total Clips', value: clips.length, icon: Grid3x3, color: 'from-cyber-primary to-blue-600' },
-          { label: 'Viral Clips', value: clips.filter(c => c.status === 'viral').length, icon: TrendingUp, color: 'from-cyber-green to-green-600' },
+          { label: 'Total Clips', value: clips.length, icon: Grid3x3, color: 'from-cyan-500 to-blue-600' },
+          { label: 'Viral Clips', value: clips.filter(c => c.status === 'viral').length, icon: TrendingUp, color: 'from-green-500 to-green-600' },
           { label: 'Total Views', value: '3.5M', icon: Eye, color: 'from-purple-500 to-pink-600' },
           { label: 'Avg Score', value: Math.round(clips.reduce((acc, c) => acc + c.score, 0) / clips.length), icon: Sparkles, color: 'from-yellow-500 to-orange-500' }
         ].map((stat, idx) => (
@@ -216,15 +220,15 @@ const ClipGallery = () => {
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: idx * 0.05 }}
             whileHover={{ scale: 1.05 }}
-            className="card-cyber p-4 relative overflow-hidden"
+            className={`p-4 relative overflow-hidden rounded-xl border transition-colors ${isDark ? 'bg-gray-900/80 border-cyan-500/20' : 'bg-white border-gray-200 shadow-lg'}`}
           >
-            <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-5`} />
+            <div className={`absolute inset-0 bg-gradient-to-br ${stat.color} opacity-10`} />
             <div className="relative z-10">
               <div className="flex items-center justify-between mb-2">
-                <span className="text-sm text-gray-400">{stat.label}</span>
-                <stat.icon className="w-5 h-5 text-gray-400" />
+                <span className={`text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>{stat.label}</span>
+                <stat.icon className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
               </div>
-              <div className="text-2xl font-black gradient-text">{stat.value}</div>
+              <div className={`text-2xl font-black ${isDark ? 'gradient-text' : 'text-gray-900'}`}>{stat.value}</div>
             </div>
           </motion.div>
         ))}
@@ -241,11 +245,11 @@ const ClipGallery = () => {
         <motion.div
           initial={{ opacity: 0, scale: 0.9 }}
           animate={{ opacity: 1, scale: 1 }}
-          className="card-cyber p-12 text-center"
+          className={`p-12 text-center rounded-xl border transition-colors ${isDark ? 'bg-gray-900/80 border-cyan-500/20' : 'bg-white border-gray-200 shadow-lg'}`}
         >
-          <Grid3x3 className="w-16 h-16 text-gray-600 mx-auto mb-4" />
-          <h3 className="text-xl font-bold mb-2">No clips found</h3>
-          <p className="text-gray-400">Try adjusting your filters or upload a new video</p>
+          <Grid3x3 className={`w-16 h-16 mx-auto mb-4 ${isDark ? 'text-gray-600' : 'text-gray-400'}`} />
+          <h3 className={`text-xl font-bold mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>No clips found</h3>
+          <p className={isDark ? 'text-gray-400' : 'text-gray-600'}>Try adjusting your filters or upload a new video</p>
         </motion.div>
       )}
 
@@ -264,13 +268,13 @@ const ClipGallery = () => {
               animate={{ scale: 1, y: 0 }}
               exit={{ scale: 0.9, y: 20 }}
               onClick={(e) => e.stopPropagation()}
-              className="card-cyber max-w-4xl w-full max-h-[90vh] overflow-auto"
+              className={`max-w-4xl w-full max-h-[90vh] overflow-auto rounded-xl border ${isDark ? 'bg-gray-900 border-cyan-500/20' : 'bg-white border-gray-200 shadow-xl'}`}
             >
               <div className="p-6">
                 <div className="flex items-start justify-between mb-6">
                   <div>
-                    <h2 className="text-2xl font-black mb-2">{selectedClip.title}</h2>
-                    <div className="flex items-center gap-4 text-sm text-gray-400">
+                    <h2 className={`text-2xl font-black mb-2 ${isDark ? 'text-white' : 'text-gray-900'}`}>{selectedClip.title}</h2>
+                    <div className={`flex items-center gap-4 text-sm ${isDark ? 'text-gray-400' : 'text-gray-600'}`}>
                       <span>{selectedClip.platform}</span>
                       <span>•</span>
                       <span>{selectedClip.duration}</span>

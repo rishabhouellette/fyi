@@ -1,33 +1,71 @@
-# Copilot instructions (FYIUploader)
+# Copilot instructions (FYIXT)
 
 ## Golden path (run/debug)
-- **Primary launcher (Windows):** run `start.bat` (spawns venv-activated terminals and exports FYI_* env vars).
-- **Manual equivalent:** `python main.py` (UI) + `python -m backend.main` (backend spine). See `HOW_TO_RUN.txt`.
-- **Regression suite:** `python test_e2e.py --verbose` (logs to `test_e2e.log`). See `TESTING_GUIDE.md`.
+- **Primary launcher (Windows):** run `start.bat` — activates venv, optionally starts ngrok, builds React frontend (`desktop/dist`), then starts FastAPI via `web_server.py`.
+- **Manual equivalent:** `python web_server.py --https --port 5050`
+- **Smoke test:** `python scripts/smoke_test_web_server.py`
 
-## Architecture map (what talks to what)
-- **NiceGUI UI shell:** `main.py` (serves UI and boots OAuth server thread).
-- **Backend spine:** `backend/main.py` initializes DB, OAuth registry, BYOK manager, then starts OAuth + NiceGUI.
-- **Local OAuth service (source of truth):** `backend/services/local_oauth.py` runs HTTPS callback at `FYI_OAUTH_REDIRECT` (default `https://127.0.0.1:5000/oauth/callback`).
-- **Legacy/compat:** `server.py` and top-level `oauth_handler.py`/`account_manager.py` are shims; prefer edits under `backend/services/*`.
-- **Standalone legacy integration API:** `api_server.py` (HTTPServer) reads/writes via `database_manager.py`.
-- **Tauri bridge API:** `desktop_api.py` is a separate Flask API and also hosts `https://127.0.0.1:5000/callback` for older desktop flows.
+## Architecture (modular single-server)
+- **Entry point:** `web_server.py` (~120 lines) — creates the FastAPI app, wires CORS, registers routes, starts the scheduler, serves the React SPA. All business logic has been extracted into modules.
+- **Module layout:**
+  - `core/config.py` — paths, env loading, DB singleton, credential helpers (BYOK, platform creds, usage tracking)
+  - `core/models.py` — all Pydantic request/response models
+  - `core/utils.py` — progress tracking, text/URL helpers, scheduled-posts I/O, Ollama helpers, ffmpeg wrappers
+  - `services/accounts.py` — `AccountManager`, account lookup helpers, active-account persistence
+  - `services/platforms.py` — Facebook, YouTube, Instagram upload/publish implementations
+  - `services/scheduler.py` — background scheduler loop (`_scheduler_loop`, `_execute_due_post`)
+  - `routes/api_routes.py` — health, accounts, OAuth, scheduling, BYOK, platform credentials, usage
+  - `routes/ai_routes.py` — AI captions, hashtags, XY-AI engine (prompts, trends, chat, content plan), image/video/voice generation, translation
+  - `routes/media_routes.py` — file uploads, video processing, links, content ingestion, templates, guides, analytics
+  - `routes/__init__.py` — `register_routes(app)` wires all routers
+- **Dependency graph:** `core/` ← `services/` ← `routes/` ← `web_server.py` (no circular imports)
+- **Database layer:** `app_db.py` — `AppDB` class wrapping SQLite (`data/fyi_webportal.db`). Handles accounts, scheduled posts, links, click tracking.
+- **No separate backend/frontend servers.** One process on one port.
+- **Backups:** `web_server_backup.py` and `web_server_original.py` are archived copies of the pre-split monolith.
 
-## Config & ports (two config systems)
-- **Backend config:** `backend/config.py` reads `.env` keys like `FYI_WEB_PORT` (default `8080`), `FYI_API_PORT` (default `5000`), `FYI_OAUTH_REDIRECT`.
-- **Legacy uploader/OAuth config:** top-level `config.py` expects `FB_APP_ID`, `FB_APP_SECRET`, `OAUTH_REDIRECT_ORIGIN` and builds `${OAUTH_REDIRECT_ORIGIN}/callback`.
-- **Port convention (per `start.bat`):** backend UI `:8000`, NiceGUI UI `:8080`, OAuth callback `:5000`.
+## Config & ports
+- **Environment:** `.env` at project root, loaded by `core/config.py` on import via `python-dotenv` (with manual fallback parser).
+- **Default port:** `5050` (HTTPS with self-signed cert). Set via `FYI_WEB_PORTAL_PORT` env var.
+- **Key env vars:** `FB_APP_ID`, `FB_APP_SECRET` (Facebook/Instagram OAuth), `YT_CLIENT_ID`, `YT_CLIENT_SECRET` (YouTube OAuth), `GOOGLE_API_KEY` (Gemini AI), `FYI_PUBLIC_BASE_URL` (ngrok public URL for Instagram).
+- **HTTPS:** Self-signed cert auto-generated at `data/certs/localhost.crt|.key`. Disable with `FYI_DISABLE_HTTPS=1`.
 
-## Data & state conventions
-- **SQLite source of truth:** `database_manager.py` with schema applied from `database_schema.sql`; DB file `data/fyi_social_media.db`.
-- **Multi-tenant filtering:** many DB calls take `team_id`; keep it consistent (see `ARCHITECTURE.txt`).
-- **Accounts/tokens:** accounts commonly in `accounts/accounts.json`; platform token artifacts often in `data/`.
+## Data & state
+- **SQLite DB:** `data/fyi_webportal.db` — accounts, scheduled posts, links, clicks (via `app_db.py`).
+- **JSON files (read/written by services & routes):**
+  - `accounts/accounts.json` — connected social media accounts
+  - `data/active_accounts.json` — currently selected account per platform
+  - `data/byok_keys.json` — BYOK API keys (OpenAI, Gemini, xAI, Anthropic, ElevenLabs, etc.)
+  - `data/scheduled_posts.json` — backup mirror of scheduled posts (SQLite is source of truth)
+  - `data/usage_credits.json` — AI usage/credits tracking
+- **Credential backup:** `data/credentials/youtube_client_secret.json` (Google Console download, not read by code — values are in `.env`)
+- **Runtime dirs:** `data/uploads/`, `data/library/`, `data/ai_jobs/`
 
-## Project-specific code patterns
-- **UI modules:** feature tabs live in `ui_*.py` (e.g. `ui_calendar.py`, `ui_bulk_upload.py`, `ui_analytics.py`).
-- **Per-platform uploaders:** `facebook_uploader.py`, `instagram_uploader.py`, `youtube_uploader.py`.
+## API route domains
+- `/api/health`, `/api/config`, `/api/growth` — health & config → `routes/api_routes.py`
+- `/api/accounts/*`, `/api/active-accounts` — account CRUD → `routes/api_routes.py`
+- `/oauth/start/{platform}`, `/oauth/callback/*` — Facebook + YouTube OAuth → `routes/api_routes.py`
+- `/api/schedule/*`, `/api/publish/*`, `/api/scheduled-posts/*` — scheduling & publishing → `routes/api_routes.py`
+- `/api/platforms/facebook/upload`, `/api/platforms/youtube/upload`, `/api/platforms/instagram/publish` — platform uploads → `routes/api_routes.py`
+- `/api/byok/*`, `/api/platform-credentials/*`, `/api/usage/*` — settings & keys → `routes/api_routes.py`
+- `/api/xy-ai/*` — XY-AI engine (prompts, trends, content plan, chat, niches) → `routes/ai_routes.py`
+- `/api/ai/*` — AI studio (caption, hashtags, image, video, voice, translate) → `routes/ai_routes.py`
+- `/api/content/*`, `/api/templates/*` — content ingestion & templates → `routes/media_routes.py`
+- `/api/video/*` — video processing, faceless video, scoring → `routes/media_routes.py`
+- `/api/links/*`, `/l/{slug}` — short links → `routes/media_routes.py`
+- `/api/analytics/*` — analytics & CSV export → `routes/media_routes.py`
+- `/api/upload`, `/uploads/{file_id}` — file uploads → `routes/media_routes.py`
+- `/api/guides/*` — social media guides → `routes/media_routes.py`
 
-## Gotchas (common agent mistakes here)
-- **Editing a shim:** top-level `oauth_handler.py`/`account_manager.py` mainly re-export from `backend/services/*`; change the backend implementation unless you’re intentionally patching legacy imports.
-- **Two DB layers exist:** `database_manager.py` (schema from `database_schema.sql`, team_id-centric) vs `backend/database.py` (its own tables, optional Supabase). Don’t mix APIs accidentally.
-- **OAuth callback paths differ:** backend OAuth default is `/oauth/callback` (`FYI_OAUTH_REDIRECT`), while legacy desktop flow in `config.py` uses `/callback` (`OAUTH_REDIRECT_ORIGIN`). Verify which flow you’re touching before changing URLs.
+## AI integration
+- **BYOK system:** 12 services (openai, anthropic, gemini, xai, elevenlabs, stability, replicate, runway, pika, kling, flux, ideogram). Keys stored in `data/byok_keys.json`.
+- **Key priority:** BYOK store → environment variables → bundled default (Gemini only, obfuscated in `_get_default_key()`).
+- **Chat cascade:** Ollama → OpenAI → Gemini (with Google Search grounding) → xAI → Anthropic → offline fallback.
+- **Gemini model:** `gemini-2.5-flash` (free tier). Google Search grounding enabled via `"tools": [{"google_search": {}}]`.
+
+## Gotchas
+- **Global credential mutation:** `set_platform_credentials` in `routes/api_routes.py` writes to `cfg.FB_APP_ID` etc. via `import core.config as cfg`.
+- **OAuth callbacks:** Facebook uses `/oauth/callback/facebook` and `/callback` (both registered). YouTube uses `/oauth/callback/youtube`.
+- **Scheduled posts dual storage:** SQLite is source of truth, but `scheduled_posts.json` is kept as a backup mirror and one-time migration source.
+- **No frontend source code in repo:** React app is built externally and served from `desktop/dist/`. If `desktop/` doesn't exist, the server runs API-only.
+- **`data/.encryption_key`** is used for credential encryption — do not delete.
+- **Cross-route import:** `routes/media_routes.py` imports `ai_generate_voice` from `routes/ai_routes.py` for the faceless-with-voice endpoint. No circular dependency exists.
