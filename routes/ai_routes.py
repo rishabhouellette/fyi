@@ -189,7 +189,7 @@ _TREND_DB: dict[str, dict] = {
 }
 
 
-def _match_niche(niche: str | None) -> str:
+def _match_niche(niche: Optional[str]) -> str:
     """Fuzzy-match user niche to our trend DB keys."""
     if not niche:
         return "general"
@@ -938,7 +938,7 @@ async def ai_generate_video(request: AIVideoRequest):
     return {"success": True, "job_id": job_id, "status": "pending", "poll_url": f"/api/ai/video/status/{job_id}"}
 
 
-async def _run_video_generation(job_id: str, provider: str, api_key: str, prompt: str, image_url: str | None, duration: int, aspect_ratio: str = "16:9"):
+async def _run_video_generation(job_id: str, provider: str, api_key: str, prompt: str, image_url: Optional[str], duration: int, aspect_ratio: str = "16:9"):
     """Background task for video generation."""
     job_file = DATA_DIR / "ai_jobs" / f"{job_id}.json"
 

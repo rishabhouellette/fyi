@@ -42,11 +42,11 @@ def _progress_set(
     job_id: str,
     *,
     stage: str,
-    percent: int | None = None,
-    message: str | None = None,
-    extra: dict | None = None,
-    done: bool | None = None,
-    error: str | None = None,
+    percent: Optional[int] = None,
+    message: Optional[str] = None,
+    extra: Optional[dict] = None,
+    done: Optional[bool] = None,
+    error: Optional[str] = None,
 ) -> None:
     if not job_id:
         return
@@ -125,7 +125,7 @@ def _ceil_to_minute(dt: datetime) -> datetime:
     return dt.replace(second=0, microsecond=0) + timedelta(minutes=1)
 
 
-def _parse_iso_loose(value: str | None) -> Optional[datetime]:
+def _parse_iso_loose(value: Optional[str]) -> Optional[datetime]:
     if not value:
         return None
     try:
@@ -276,7 +276,7 @@ async def _ollama_models(timeout_s: float = 1.5) -> list[str]:
         return []
 
 
-async def _ollama_generate(prompt: str, model: str, system: str | None = None, timeout_s: float = 20.0) -> str:
+async def _ollama_generate(prompt: str, model: str, system: Optional[str] = None, timeout_s: float = 20.0) -> str:
     payload: dict[str, Any] = {
         "model": model,
         "prompt": prompt,

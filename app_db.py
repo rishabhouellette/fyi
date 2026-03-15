@@ -313,7 +313,7 @@ class AppDB:
         finally:
             conn.close()
 
-    def mark_scheduled_post_result(self, post_id: str, status: str, result: dict[str, Any] | None, error: str | None) -> bool:
+    def mark_scheduled_post_result(self, post_id: str, status: str, result: Optional[dict[str, Any]], error: Optional[str]) -> bool:
         conn = self._connect()
         try:
             cur = conn.execute(
@@ -431,7 +431,7 @@ class AppDB:
         finally:
             conn.close()
 
-    def record_click(self, link_id: int, ip: str | None, user_agent: str | None, referrer: str | None) -> None:
+    def record_click(self, link_id: int, ip: Optional[str], user_agent: Optional[str], referrer: Optional[str]) -> None:
         conn = self._connect()
         try:
             conn.execute(

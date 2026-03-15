@@ -55,7 +55,7 @@ def _facebook_resumable_upload_sync(
     if size <= 0:
         raise RuntimeError("File is empty")
 
-    def p(stage: str, percent: int | None = None, message: str | None = None, extra: dict | None = None):
+    def p(stage: str, percent: Optional[int] = None, message: Optional[str] = None, extra: Optional[dict] = None):
         if progress_job_id:
             _progress_set(progress_job_id, stage=stage, percent=percent, message=message, extra=extra)
 
@@ -302,7 +302,7 @@ async def _ensure_youtube_access_token(acct: dict) -> str:
     refresh_token = acct.get("refresh_token")
     expires_at = acct.get("token_expires_at")
 
-    def _is_expired(value: str | None) -> bool:
+    def _is_expired(value: Optional[str]) -> bool:
         if not value:
             return False
         try:
@@ -557,7 +557,7 @@ async def _instagram_publish_resumable_local(
         if upload_resp.status_code >= 400:
             raise HTTPException(status_code=upload_resp.status_code, detail=upload_resp.text)
 
-        last_status_payload: dict[str, Any] | None = None
+        last_status_payload: Optional[dict[str, Any]] = None
         status_code_val = None
         for _ in range(90):
             last_status_payload = await _ig_get_container_status(
@@ -645,7 +645,7 @@ async def _instagram_publish_internal(account_id: Optional[str], file_id: str, c
             raise HTTPException(status_code=500, detail="Instagram did not return a creation id")
 
         status_code_val = None
-        last_status_payload: dict[str, Any] | None = None
+        last_status_payload: Optional[dict[str, Any]] = None
         for _ in range(90):
             last_status_payload = await _ig_get_container_status(
                 client, creation_id, access_token, include_video_status=False,

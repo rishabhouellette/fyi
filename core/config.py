@@ -3,7 +3,7 @@ import os
 import json
 from pathlib import Path
 from datetime import datetime, timedelta
-from typing import Any
+from typing import Any, Optional
 
 try:
     from dotenv import load_dotenv
@@ -222,7 +222,7 @@ def _save_byok_keys(keys: dict[str, str]) -> None:
     BYOK_KEYS_FILE.write_text(_encrypt_json(keys), encoding="utf-8")
 
 
-def _get_byok_key(service: str) -> str | None:
+def _get_byok_key(service: str) -> Optional[str]:
     """Get API key for a service (checks BYOK store, then env vars, then bundled defaults)."""
     keys = _load_byok_keys()
     key = keys.get(service)
@@ -250,7 +250,7 @@ def _get_byok_key(service: str) -> str | None:
     return _get_default_key(service.lower())
 
 
-def _get_default_key(service: str) -> str | None:
+def _get_default_key(service: str) -> Optional[str]:
     """Retrieve bundled default API key for a service.
     
     REMOVED: Hardcoded keys are a security risk. Configure via .env or BYOK settings instead.
@@ -286,7 +286,7 @@ def _save_platform_credentials(creds: dict[str, dict[str, str]]) -> None:
     PLATFORM_CREDS_FILE.write_text(_encrypt_json(creds), encoding="utf-8")
 
 
-def _get_platform_credential(platform: str, key: str) -> str | None:
+def _get_platform_credential(platform: str, key: str) -> Optional[str]:
     """Get a credential for a platform (checks stored creds then env vars)."""
     creds = _load_platform_credentials()
     platform_creds = creds.get(platform.lower(), {})

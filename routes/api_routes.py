@@ -100,7 +100,7 @@ async def get_growth_report(days: int = 30):
     cutoff = now - timedelta(days=days)
     prev_cutoff = cutoff - timedelta(days=days)
 
-    def _parse_dt(value: str | None) -> Optional[datetime]:
+    def _parse_dt(value: Optional[str]) -> Optional[datetime]:
         if not value:
             return None
         try:
@@ -664,7 +664,7 @@ async def instagram_publish(request: InstagramPublishRequest, req: Request):
             raise HTTPException(status_code=500, detail="Instagram did not return a creation id")
 
         status_code_val = None
-        last_status_payload: dict[str, Any] | None = None
+        last_status_payload: Optional[dict[str, Any]] = None
         for _ in range(90):
             last_status_payload = await _ig_get_container_status(
                 client, creation_id, access_token, include_video_status=False,
@@ -757,7 +757,7 @@ async def schedule_post(request: ScheduleRequest):
 
     _progress_set(schedule_id, stage="schedule_start", percent=1, message="Scheduling…")
 
-    def _parse_dt_local(value: str | None) -> Optional[datetime]:
+    def _parse_dt_local(value: Optional[str]) -> Optional[datetime]:
         if not value:
             return None
         try:
@@ -786,7 +786,7 @@ async def schedule_post(request: ScheduleRequest):
         return any(s in m for s in signals)
 
     def _compute_smart_time(platforms: list[str], interval_minutes: int,
-                            account_id: str | None = None) -> datetime:
+                            account_id: Optional[str] = None) -> datetime:
         """Compute the next smart-schedule time.
         When *account_id* is given, only posts belonging to that account
         (payload.accounts.<platform>) are considered so that switching
@@ -797,7 +797,7 @@ async def schedule_post(request: ScheduleRequest):
         posts = db.list_scheduled_posts(limit=1000)
         target = {str(p).strip().lower() for p in (platforms or []) if str(p).strip()}
         occupied: set[str] = set()
-        latest_existing: datetime | None = None
+        latest_existing: Optional[datetime] = None
         for p in posts:
             if str(p.get("status") or "").lower() in {"cancelled", "failed"}:
                 continue
@@ -844,7 +844,7 @@ async def schedule_post(request: ScheduleRequest):
         if not scheduled_time or scheduled_time.upper() == "SMART":
             # Resolve the account_id for the target platform so smart time
             # only considers posts for THIS account/page.
-            _smart_acct_id: str | None = None
+            _smart_acct_id: Optional[str] = None
             try:
                 _accts = request.accounts or {}
                 for _pk in (request.platforms or []):
@@ -1245,7 +1245,7 @@ async def bulk_schedule_posts(request: BulkScheduleRequest):
     interval_minutes = max(1, min(int(request.interval_minutes or 60), 24 * 60))
     smart = bool(request.smart)
 
-    def _parse_dt_local(value: str | None) -> Optional[datetime]:
+    def _parse_dt_local(value: Optional[str]) -> Optional[datetime]:
         if not value:
             return None
         try:
@@ -1258,7 +1258,7 @@ async def bulk_schedule_posts(request: BulkScheduleRequest):
         all_platforms.extend(it.platforms or [])
     target = {str(p).strip().lower() for p in all_platforms if str(p).strip()}
     # Resolve the account_id for filtering (same logic as single-post path)
-    _bulk_acct_id: str | None = None
+    _bulk_acct_id: Optional[str] = None
     try:
         _accts = request.accounts or {}
         for _pk in target:
@@ -1270,7 +1270,7 @@ async def bulk_schedule_posts(request: BulkScheduleRequest):
 
     posts = db.list_scheduled_posts(limit=1000)
     occupied: set[str] = set()
-    latest_existing: datetime | None = None
+    latest_existing: Optional[datetime] = None
     for p in posts:
         if str(p.get("status") or "").lower() in {"cancelled", "failed"}:
             continue
@@ -1349,7 +1349,7 @@ async def bulk_schedule_posts(request: BulkScheduleRequest):
 
         date_part = ""
         time_part = ""
-        dtp: datetime | None = None
+        dtp: Optional[datetime] = None
         try:
             dtp = datetime.fromisoformat(scheduled_time)
             date_part = dtp.date().isoformat()
