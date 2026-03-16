@@ -13,9 +13,13 @@ import {
   Search,
   Moon,
   Sun,
-  Brain
+  Brain,
+  LogOut,
+  User,
+  ChevronDown
 } from 'lucide-react';
 import { useTheme } from './context/ThemeContext';
+import logoImg from '/logo.png?url';
 
 // Import components
 import Dashboard from './components/Dashboard';
@@ -35,6 +39,12 @@ function App() {
   const { isDark, toggleTheme } = useTheme();
   const [notifications, setNotifications] = useState(0);
   const [showNotifications, setShowNotifications] = useState(false);
+  const [showProfileMenu, setShowProfileMenu] = useState(false);
+  const [user] = useState({
+    name: 'User Account',
+    email: 'user@viralclip.tech',
+    initials: 'UA'
+  });
 
   const navItems = [
     { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
@@ -76,13 +86,20 @@ function App() {
         animate={{ x: 0 }}
         className={`w-20 border-r flex flex-col items-center py-6 gap-8 relative z-50 transition-colors duration-300 ${isDark ? 'glass border-cyber-primary/20' : 'bg-white border-gray-200 shadow-lg'}`}
       >
-        {/* Logo */}
-        <motion.div 
+        {/* Logo - Home Button */}
+        <motion.button 
           whileHover={{ scale: 1.1, rotate: 5 }}
-          className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyber-primary to-cyber-purple flex items-center justify-center font-black text-xs cursor-pointer cyber-glow"
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setActiveView('dashboard')}
+          className="w-12 h-12 rounded-xl bg-gradient-to-br from-cyber-primary to-cyber-purple flex items-center justify-center font-black text-xs cursor-pointer cyber-glow overflow-hidden"
+          title="Home - ViralClip.tech"
         >
-          FYIXT
-        </motion.div>
+          <img 
+            src={logoImg} 
+            alt="ViralClip Logo" 
+            className="w-10 h-10 object-contain"
+          />
+        </motion.button>
 
         {/* Nav Items */}
         <nav className="flex-1 flex flex-col gap-4">
@@ -167,6 +184,22 @@ function App() {
           >
             <Settings className="w-6 h-6" />
           </motion.button>
+          
+          <motion.button
+            whileHover={{ scale: 1.1 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={() => {
+              if (confirm('Are you sure you want to logout?')) {
+                localStorage.clear();
+                sessionStorage.clear();
+                window.location.href = '/';
+              }
+            }}
+            className={`w-14 h-14 rounded-xl flex items-center justify-center transition-colors ${isDark ? 'bg-red-500/10 hover:bg-red-500/20 text-red-400' : 'bg-red-50 hover:bg-red-100 text-red-600'}`}
+            title="Logout"
+          >
+            <LogOut className="w-6 h-6" />
+          </motion.button>
         </div>
       </motion.div>
 
@@ -176,7 +209,8 @@ function App() {
         <motion.div 
           initial={{ y: -100 }}
           animate={{ y: 0 }}
-          className={`h-16 border-b flex items-center justify-between px-6 transition-colors duration-300 ${isDark ? 'glass border-cyber-primary/20' : 'bg-white border-gray-200 shadow-sm'}`}
+          className={`h-16 border-b flex items-center justify-between px-6 transition-colors duration-300 overflow-visible ${isDark ? 'glass border-cyber-primary/20' : 'bg-white border-gray-200 shadow-sm'}`}
+          style={{ position: 'relative', zIndex: 100 }}
         >
           <div className="flex items-center gap-4 flex-1 max-w-2xl">
             <Search className={`w-5 h-5 ${isDark ? 'text-gray-400' : 'text-gray-500'}`} />
@@ -197,10 +231,88 @@ function App() {
               {isDark ? <Sun className="w-5 h-5" /> : <Moon className="w-5 h-5" />}
             </motion.button>
 
-            <motion.div
-              whileHover={{ scale: 1.05 }}
-              className="w-10 h-10 rounded-full bg-gradient-to-br from-cyber-primary to-cyber-purple cursor-pointer cyber-glow"
-            />
+            <div className="relative">
+              <motion.button
+                whileHover={{ scale: 1.05 }}
+                whileTap={{ scale: 0.95 }}
+                onClick={() => setShowProfileMenu(!showProfileMenu)}
+                className="w-10 h-10 rounded-full bg-gradient-to-br from-cyber-primary to-cyber-purple cursor-pointer cyber-glow flex items-center justify-center font-bold text-white text-sm transition-all"
+                title="Profile"
+              >
+                {user.initials}
+              </motion.button>
+              
+              {/* Profile Dropdown Menu */}
+              {showProfileMenu && (
+                <motion.div
+                  initial={{ opacity: 0, y: -10 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -10 }}
+                  className={`absolute right-0 mt-2 w-56 rounded-xl shadow-2xl z-[99999] border top-full ${isDark ? 'glass border-cyber-primary/20 bg-gray-900/95' : 'bg-white border-gray-200'}`}
+                  style={{ position: 'absolute', zIndex: 99999 }}
+                >
+                  {/* User Info */}
+                  <div className={`p-4 border-b ${isDark ? 'border-gray-700' : 'border-gray-100'}`}>
+                    <div className="flex items-center gap-3">
+                      <div className="w-10 h-10 rounded-full bg-gradient-to-br from-cyber-primary to-cyber-purple flex items-center justify-center font-bold text-white text-sm">
+                        {user.initials}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className={`font-semibold text-sm truncate ${isDark ? 'text-white' : 'text-gray-900'}`}>
+                          {user.name}
+                        </p>
+                        <p className={`text-xs truncate ${isDark ? 'text-gray-400' : 'text-gray-500'}`}>
+                          {user.email}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                  
+                  {/* Menu Items */}
+                  <div className="p-2">
+                    <motion.button
+                      whileHover={{ backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
+                      onClick={() => {
+                        setActiveView('settings');
+                        setShowProfileMenu(false);
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${isDark ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'}`}
+                    >
+                      <Settings className="w-4 h-4" />
+                      <span>Settings</span>
+                    </motion.button>
+                    
+                    <motion.button
+                      whileHover={{ backgroundColor: isDark ? 'rgba(255,255,255,0.05)' : 'rgba(0,0,0,0.05)' }}
+                      onClick={() => {
+                        setShowProfileMenu(false);
+                      }}
+                      className={`w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors ${isDark ? 'text-gray-300 hover:text-white' : 'text-gray-700 hover:text-gray-900'}`}
+                    >
+                      <User className="w-4 h-4" />
+                      <span>Account</span>
+                    </motion.button>
+                    
+                    <div className={`my-1 border-t ${isDark ? 'border-gray-700' : 'border-gray-100'}`} />
+                    
+                    <motion.button
+                      whileHover={{ backgroundColor: 'rgba(239, 68, 68, 0.1)' }}
+                      onClick={() => {
+                        if (confirm('Are you sure you want to logout?')) {
+                          localStorage.clear();
+                          sessionStorage.clear();
+                          window.location.href = '/';
+                        }
+                      }}
+                      className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-sm text-red-400 hover:text-red-500 transition-colors"
+                    >
+                      <LogOut className="w-4 h-4" />
+                      <span>Logout</span>
+                    </motion.button>
+                  </div>
+                </motion.div>
+              )}
+            </div>
           </div>
         </motion.div>
 
